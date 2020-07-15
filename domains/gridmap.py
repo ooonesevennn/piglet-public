@@ -61,7 +61,7 @@ class gridmap:
 
     # return a list with all the applicable/valid actions
     # at tile (x, y)
-    def get_moves(self, x, y):
+    def get_actions(self, x, y):
         retval = []
 
         if(x < 0 or x >= int(self.width_) or y < 0 or y >= int(self.height_)):
