@@ -11,13 +11,18 @@ from domains import grid_action
 import sys
 
 class gridmap:
+    map: list
+    height_: int
+    width_: int
+    map_size_: int
     
     def __init__(self):
         self.map_ = []
         self.height_ = int(0)
         self.width_ = int(0)
+        self.map_size_ = int(0)
 
-    def load(self, filename):
+    def load(self, filename: str):
         map_fo = open(filename, "r")
 
         print("parsing map")

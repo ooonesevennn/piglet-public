@@ -23,7 +23,7 @@ class bin_heap:
         self.currentSize = self.currentSize + 1
         self.percUp(self.currentSize)
 
-    def pop_min(self):
+    def pop(self):
         """
         Pop the top item of the heap and update the heap to maintain heap strucure.
         :return:
@@ -35,7 +35,7 @@ class bin_heap:
         self.percDown(1)
         return retval
 
-    def build_heap(self, alist:list):
+    def build(self, alist:list):
         """
         Use a list to initialize the heap.
         :param alist:
@@ -53,14 +53,14 @@ class bin_heap:
     def size(self):
         """
         Return the size of the heap.
-        :return:
+        :return int: size of the heap
         """
         return self.currentSize
 
     def empty(self):
         """
         Return true if heap is empty
-        :return:
+        :return bool: is the heap empty.
         """
         return len(self.heapList) == 1
 
