@@ -44,6 +44,11 @@ class tree_search:
         # return failure instead of a solution
         return None
 
+    # Generate search_node objects for a given state
+    # For this operatin we we need to know: 
+    # @param state: the state which the search node maps to
+    # @param action: the action which generated the state (could be [None])
+    # @param parent: the parent state (could be [None])
     def generate(state, action, parent):
         
         retval = search_node.search_node()
@@ -51,10 +56,14 @@ class tree_search:
         retval.action_ = action
         retval.parent_ = parent
         if(parent == None):
+            # initialise the node from scratch 
+            # NB: we usually do this only for the start node
             retval.g_ = 0
             retval.depth_ = 0
         else: 
+            # initialise the node based on its parent
             retval.g_ = parent.g_ + action.cost_
+            retval.depth_ = parent.depth_ + 1
             retval.parent_ = parent
 
     # extract the computed solution by following backpointers
