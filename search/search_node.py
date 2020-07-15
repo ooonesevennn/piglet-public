@@ -24,6 +24,4 @@ class search_node:
         self.g_ = sys.maxint
         self.depth_ = sys.maxint
         self.instance_ = sys.maxint
-
-    
     

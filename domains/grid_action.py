@@ -11,7 +11,7 @@ MOVE_UP = 0
 MOVE_LEFT = 1
 MOVE_RIGHT = 2  
 MOVE_DOWN = 3
-MOVE_WAIT = 9
+MOVE_WAIT = 4
 
 class grid_action:
 
