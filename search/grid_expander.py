@@ -36,28 +36,3 @@ class grid_expander
             self.succ_.append((current.state_ + self.effects_[a.move_], a))
         return self.successors_
 
-    # Generate search_node objects for a given state
-    # For this operatin we we need to know: 
-    # @param state: the state which the search node maps to
-    # @param action: the action which generated the state (could be [None])
-    # @param parent: the parent state (could be [None])
-    def generate(state, action, parent):
-
-        # validate that the state is legit
-        if(state < 0 or state >= (gm_.width_ * gm_.height_))
-            return None;
-        
-        retval = nodes_[state]
-        retval.state_ = state
-        retval.action_ = action
-        if(parent != None):
-            # initialise the node based on its parent
-            retval.parent_ = parent
-            retval.g_ = parent.g_ + action.cost_
-            retval.depth_ = parent.depth_ + 1
-        else:
-            # initialise the node from scratch 
-            # NB: we usually do this only for the start node
-            retval.parent_ = None
-            retval.g_ = 0
-            
