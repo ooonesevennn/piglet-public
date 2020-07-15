@@ -8,7 +8,7 @@
 
 import sys
 
-def class search_node:
+class search_node:
     self.action_
     self.state_
     self.parent_
@@ -16,7 +16,7 @@ def class search_node:
     self.depth_
     self.instance_
 
-    __init__(self):
+    def __init__(self):
         # some default values for uninitialised nodes
         self.action_ = False 
         self.state_ = False 
