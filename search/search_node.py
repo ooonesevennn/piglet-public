@@ -9,12 +9,12 @@
 import sys
 
 class search_node:
-    self.action_
-    self.state_
-    self.parent_
-    self.g_
-    self.depth_
-    self.instance_
+    action_ = None
+    state_ = None
+    parent_ = None
+    g_ = None
+    depth_ = None
+    instance_ = None
 
     def __init__(self):
         # some default values for uninitialised nodes

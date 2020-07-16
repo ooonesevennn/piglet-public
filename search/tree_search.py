@@ -11,34 +11,40 @@
 # @created: 2020-07-16
 #
 
-from search import search_node
+from search.search_node import search_node
+from search.base_search import base_search
 
-class tree_search:
+
+class tree_search(base_search):
 
     def __init__(self, open_list, expander):
         self.open_list_ = open_list
         self.expander_ = expander
 
-    def get_path(start_state, goal_state):
+    # Search the path between two state
+    # @param start_state The start of the path
+    # @param goal_state Then goal of the path
+    # @return a list of locations between start and goal
+    def get_path(self,start_state, goal_state):
     
-        start_node = generate(start_state, None, None)
-        open_list.push(start_node)
+        start_node = self.generate(start_state, None, None)
+        self.open_list.push(start_node)
 
         # continue while there are still nods on OPEN
-        while(len(open_list) > 0):  
-            current = open_list.pop()
+        while (len(self.open_list) > 0):
+            current = self.open_list.pop()
 
             # goal test. if successful, return the solution
             if(current == goal_state):
-                return solution(current)
+                return self.solution(current)
 
             # expand the current node
-            for(succ  in expander.expand(start_node)):
+            for succ in self.expander.expand(start_node):
                 # each successor is a (state, action) tuple which
                 # which we map to a corresponding search_node and push
                 # then push onto the OPEN list
-                succ_node = generate(succ[0], succ[1], current.state_)
-                open_list.push(succ_node)
+                succ_node = self.generate(succ[0], succ[1], current.state_)
+                self.open_list.push(succ_node)
 
         # OPEN list is exhausted and we did not find the goal
         # return failure instead of a solution
@@ -49,9 +55,9 @@ class tree_search:
     # @param state: the state which the search node maps to
     # @param action: the action which generated the state (could be [None])
     # @param parent: the parent state (could be [None])
-    def generate(state, action, parent):
+    def generate(self,state: search_node, action, parent: search_node):
         
-        retval = search_node.search_node()
+        retval = search_node()
         retval.state_ = state
         retval.action_ = action
         retval.parent_ = parent
@@ -67,11 +73,11 @@ class tree_search:
             retval.parent_ = parent
 
     # extract the computed solution by following backpointers
-    def solution(goal_node):
+    def solution(self,goal_node: search_node):
         
         tmp = goal_node
         sol = []
-        while(tmp != None)
+        while (tmp != None):
             sol.append(tmp)
             tmp = tmp.parent
         

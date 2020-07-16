@@ -1,4 +1,11 @@
 # utils.binary_heap/Binary_Heap.py
+# Implements a binary heap data structure. It maintain the data in a priority order and pop the top (min) item.
+#
+
+#
+# @author: mike
+# @created: 2020-07-16
+#
 
 
 class bin_heap:
@@ -22,6 +29,14 @@ class bin_heap:
         self.heapList.append(item)
         self.currentSize = self.currentSize + 1
         self.percUp(self.currentSize)
+
+    def push(self, item):
+        """
+        Do same thing as insert. Push an item into the heap and update the structure
+        :param item:
+        :return:
+        """
+        self.insert(item)
 
     def pop(self):
         """
