@@ -21,7 +21,14 @@ class search_node:
         self.action_ = False 
         self.state_ = False 
         self.parent_ = False 
-        self.g_ = sys.maxint
-        self.depth_ = sys.maxint
-        self.instance_ = sys.maxint
+        self.g_ = sys.maxsize
+        self.depth_ = sys.maxsize
+        self.instance_ = sys.maxsize
+
+    def __str__(self):
+        return str(self.state_)
+
+    def __repr__(self):
+        return str(self.state_)
+
     

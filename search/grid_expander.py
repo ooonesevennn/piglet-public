@@ -13,6 +13,7 @@ from search.search_node import search_node
 from search.constants import *
 from search.base_expander import base_expander
 from domains.gridmap import gridmap
+from domains.grid_action import  Move_Actions
 
 class grid_expander(base_expander):
     gm_: gridmap
@@ -29,7 +30,7 @@ class grid_expander(base_expander):
         # pre-allocate a pool of search nodes
         self.nodes_ = []
         for x in range(self.gm_.height_ * self.gm_.width_):
-            self.nodes_.append(search_node.search_node())
+            self.nodes_.append(search_node())
 
     # identify successors of the current node
     #
@@ -42,6 +43,21 @@ class grid_expander(base_expander):
             # NB: we only initialise the state and action attributes.
             # The search will initialise the rest, assuming it decides 
             # to add the corresponding successor to OPEN
-            self.succ_.append((current.state_ + self.effects_[a.move_], a))
-        return self.successors_
+            new_state = self.__move(current.state_, a.move_)
+            self.succ_.append((new_state, a))
+        return self.succ_[:]
+
+    def __move(self, curr_state: tuple, move):
+        x = curr_state[0]
+        y = curr_state[1]
+        if move == Move_Actions.MOVE_UP:
+            y += 1
+        elif move == Move_Actions.MOVE_DOWN:
+            y -= 1
+        elif move == Move_Actions.MOVE_LEFT:
+            x -= 1
+        elif move == Move_Actions.MOVE_RIGHT:
+            x += 1
+        return x, y
+
 

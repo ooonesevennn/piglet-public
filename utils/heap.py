@@ -28,7 +28,7 @@ class bin_heap:
         """
         self.heapList.append(item)
         self.currentSize = self.currentSize + 1
-        self.percUp(self.currentSize)
+        self.__percUp(self.currentSize)
 
     def push(self, item):
         """
@@ -47,7 +47,7 @@ class bin_heap:
         self.heapList[1] = self.heapList[self.currentSize]
         self.currentSize = self.currentSize - 1
         self.heapList.pop()
-        self.percDown(1)
+        self.__percDown(1)
         return retval
 
     def build(self, alist:list):
@@ -62,7 +62,7 @@ class bin_heap:
         self.heapList = [0] + alist[:]
         self.currentSize = len(alist)
         while (i > 0):
-            self.percDown(i)
+            self.__percDown(i)
             i = i - 1
 
     def size(self):
@@ -79,7 +79,7 @@ class bin_heap:
         """
         return len(self.heapList) == 1
 
-    def percUp(self, i):
+    def __percUp(self, i):
         while i // 2 > 0:
             if self.heapList[i] < self.heapList[i // 2]:
                 tmp = self.heapList[i // 2]
@@ -87,16 +87,16 @@ class bin_heap:
                 self.heapList[i] = tmp
             i = i // 2
 
-    def percDown(self, i):
+    def __percDown(self, i):
         while (i * 2) <= self.currentSize:
-            mc = self.minChild(i)
+            mc = self.__minChild(i)
             if self.heapList[i] > self.heapList[mc]:
                 tmp = self.heapList[i]
                 self.heapList[i] = self.heapList[mc]
                 self.heapList[mc] = tmp
             i = mc
 
-    def minChild(self, i):
+    def __minChild(self, i):
         if i * 2 + 1 > self.currentSize:
             return i * 2
         else:

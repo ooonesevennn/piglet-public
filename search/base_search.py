@@ -6,6 +6,7 @@
 #
 
 from search.base_expander import base_expander
+from search.search_node import search_node
 
 
 class base_search:
@@ -24,10 +25,37 @@ class base_search:
     # Generate search_node objects for a given state
     # For this operatin we we need to know:
     # @param state: the state which the search node maps to
-    # @param action: the action which generated the state
-    # @param parent: the parent
-    def generate(self, state, action, parent):
-        raise NotImplementedError()
+    # @param action: the action which generated the state (could be [None])
+    # @param parent: the parent state (could be [None])
+    def generate(self, state, action, parent: search_node):
+
+        retval = search_node()
+        retval.state_ = state
+        retval.action_ = action
+        retval.parent_ = parent
+        if (parent == None):
+            # initialise the node from scratch
+            # NB: we usually do this only for the start node
+            retval.g_ = 0
+            retval.depth_ = 0
+        else:
+            # initialise the node based on its parent
+            retval.g_ = parent.g_ + action.cost_
+            retval.depth_ = parent.depth_ + 1
+            retval.parent_ = parent
+        return retval
+
+    # extract the computed solution by following backpointers
+    def solution(self, goal_node: search_node):
+
+        tmp = goal_node
+        sol = []
+        while (tmp != None):
+            sol.append(tmp)
+            tmp = tmp.parent_
+
+        sol.reverse()
+        return sol
 
 
 
