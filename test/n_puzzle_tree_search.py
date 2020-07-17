@@ -14,12 +14,11 @@ class queue(deque):
 
 puzzle = n_puzzle.n_puzzle()
 puzzle.load(inputfile)
-print(puzzle.start_state())
-print(puzzle.goal_state())
 
 open_list = queue()
 
 expander = n_puzzle_expander(puzzle)
 search = tree_search(open_list, expander)
 path = search.get_path(puzzle.start_state(), puzzle.goal_state())
+search.print_statistic()
 print(path)

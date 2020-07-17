@@ -8,7 +8,6 @@
 
 class base_expander:
 
-
     def __init__(self, domain):
         pass
 
@@ -17,4 +16,7 @@ class base_expander:
     # @param current: The current node
     # @return : successer of a list of (state, action) tuple
     def expand(self, current):
+        raise NotImplementedError()
+
+    def __str__(self):
         raise NotImplementedError()

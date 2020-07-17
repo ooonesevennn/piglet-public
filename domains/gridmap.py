@@ -15,6 +15,7 @@ class gridmap:
     height_: int
     width_: int
     map_size_: int
+    domain_file_: str
     
     def __init__(self):
         self.map_ = []
@@ -25,6 +26,7 @@ class gridmap:
     # Load map in the map instance
     # @param filename The path to map file.
     def load(self, filename: str):
+        self.domain_file_ = filename
         map_fo = open(filename, "r")
 
         print("parsing map")
@@ -132,4 +134,7 @@ class gridmap:
         tmp = map_fo.readline().strip()
         if(tmp != "map"):
             return -1
+
+    def __str__(self):
+        return self.domain_file_
 

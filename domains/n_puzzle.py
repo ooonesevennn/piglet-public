@@ -38,13 +38,13 @@ class puzzle_state:
 
     def __str__(self):
         width = math.sqrt(len(self.state_list_))
-        str_ = ""
+        str_ = "\n"
         for i in range(1,len(self.state_list_)+1):
             str_ += str(self.state_list_[i-1])
             if i%width == 0:
                 str_ += "\n"
             else:
-                str_ += ","
+                str_ += "\t"
         return str_
 
     def __repr__(self):
@@ -58,10 +58,12 @@ class n_puzzle:
     goal_: puzzle_state
     start_: puzzle_state
     swap_offset: list
+    domain_file_: str = "Unknown"
 
     # Load a problem from a file
     # @param filename The path to a puzzle file
     def load(self, filename: str):
+        self.domain_file_ = filename
         with open(filename) as file:
 
             type_line = file.readline().strip().split(" ")
@@ -125,7 +127,7 @@ class n_puzzle:
 
 
     def __str__(self):
-        return self.start_.__str__()
+        return self.domain_file_
 
     def __parse_puzzle(self, file):
         puzzle_list = []
@@ -164,6 +166,7 @@ class n_puzzle:
                 if self.start_state().state_list_[i] > self.start_state().state_list_[j]:
                     count += 1
         return count
+
 
 
 

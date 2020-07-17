@@ -20,7 +20,7 @@ class search_node:
         # some default values for uninitialised nodes
         self.action_ = False 
         self.state_ = False 
-        self.parent_ = False 
+        self.parent_ = None
         self.g_ = sys.maxsize
         self.depth_ = sys.maxsize
         self.instance_ = sys.maxsize

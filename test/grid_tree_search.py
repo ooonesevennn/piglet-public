@@ -19,6 +19,7 @@ expander = grid_expander(gm)
 search = tree_search(open_list, expander)
 path = search.get_path((1,2),(10,2))
 print(path)
+search.print_statistic()
 
 
 

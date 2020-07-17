@@ -59,4 +59,7 @@ class grid_expander(base_expander):
             x += 1
         return x, y
 
+    def __str__(self):
+        return str(self.gm_)
+
 

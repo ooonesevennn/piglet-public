@@ -4,13 +4,22 @@
 # @author: mike
 # @created: 2020-07-15
 #
-
+import sys
 from expanders.base_expander import base_expander
 from search.search_node import search_node
+from solution.solution import solution
 
 
 class base_search:
-    expander_ : base_expander
+    nodes_generated_: int = 0
+    nodes_expanded_: int = 0
+    runtime_: float = 0
+    start_time_: float = 0
+    time_limit_: int = sys.maxsize
+    expander_: base_expander = None
+    solution_: solution = None
+    start_ = None
+    goal_ = None
 
     def __init__(self):
         pass
@@ -32,7 +41,6 @@ class base_search:
         retval = search_node()
         retval.state_ = state
         retval.action_ = action
-        retval.parent_ = parent
         if (parent == None):
             # initialise the node from scratch
             # NB: we usually do this only for the start node
@@ -47,15 +55,16 @@ class base_search:
 
     # extract the computed solution by following backpointers
     def solution(self, goal_node: search_node):
-
         tmp = goal_node
+        depth = goal_node.depth_
+        cost = goal_node.g_
         sol = []
         while (tmp != None):
             sol.append(tmp)
             tmp = tmp.parent_
 
         sol.reverse()
-        return sol
+        return solution(sol,depth,cost)
 
 
 

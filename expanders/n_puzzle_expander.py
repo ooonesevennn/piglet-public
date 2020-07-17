@@ -35,6 +35,9 @@ class n_puzzle_expander(base_expander):
         new_list[new_x_index] = temp
         return puzzle_state(new_list,new_x_index,action), puzzle_action(action, 1)
 
+    def __str__(self):
+        return str(self.puzzle_)
+
 
 
 
