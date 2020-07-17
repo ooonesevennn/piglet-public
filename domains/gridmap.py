@@ -22,6 +22,8 @@ class gridmap:
         self.width_ = int(0)
         self.map_size_ = int(0)
 
+    # Load map in the map instance
+    # @param filename The path to map file.
     def load(self, filename: str):
         map_fo = open(filename, "r")
 
@@ -49,6 +51,7 @@ class gridmap:
                 self.map_[x][y] = False
             i += 1
 
+    # Write map tp a file
     def write(self):
 
         print("type octile")
@@ -66,6 +69,8 @@ class gridmap:
 
     # return a list with all the applicable/valid actions
     # at tile (x, y)
+    # @param loc A (x,y) coordinate tuple
+    # @return a list of gridaction object.
     def get_actions(self, loc: tuple):
         x = loc[0]
         y = loc[1]

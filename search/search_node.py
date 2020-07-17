@@ -29,6 +29,6 @@ class search_node:
         return str(self.state_)
 
     def __repr__(self):
-        return str(self.state_)
+        return self.state_.__repr__()
 
     

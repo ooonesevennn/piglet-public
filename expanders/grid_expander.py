@@ -1,4 +1,4 @@
-# domains/grid_expander.py
+# expander/grid_expander.py
 # 
 # Expand function for the 4-connected gridmap domain.
 #
@@ -10,8 +10,7 @@
 #
 
 from search.search_node import search_node
-from search.constants import *
-from search.base_expander import base_expander
+from expanders.base_expander import base_expander
 from domains.gridmap import gridmap
 from domains.grid_action import  Move_Actions
 

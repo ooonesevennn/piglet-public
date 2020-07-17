@@ -1,4 +1,4 @@
-# search/base_search.py
+# expander/base_search.py
 # This module defines a base expander class and what attribute/method a expander class should have.
 #
 # @author: mike

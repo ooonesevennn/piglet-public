@@ -1,4 +1,4 @@
-# search/constants.py
+# expander/constants.py
 #
 # Various constants and globals we refer to during search
 #

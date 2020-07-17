@@ -1,5 +1,5 @@
 from domains import gridmap
-from search.grid_expander import grid_expander
+from expanders.grid_expander import grid_expander
 from search.tree_search import tree_search
 from _collections import deque
 import os
@@ -9,7 +9,7 @@ inputfile = os.path.join(file_folder, "gridmap/empty-16-16.map")
 
 class queue(deque):
     def push(self,item):
-        self.appendleft(item)
+        self.append(item)
 
 gm = gridmap.gridmap()
 gm.load(inputfile)
@@ -17,7 +17,7 @@ open_list = queue()
 
 expander = grid_expander(gm)
 search = tree_search(open_list, expander)
-path = search.get_path((1,2),(2,10))
+path = search.get_path((1,2),(10,2))
 print(path)
 
 

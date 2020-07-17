@@ -5,7 +5,7 @@
 # @created: 2020-07-15
 #
 
-from search.base_expander import base_expander
+from expanders.base_expander import base_expander
 from search.search_node import search_node
 
 
