@@ -9,16 +9,16 @@ python >= 3.6
 1. Clone the repo to your machine
 2. Run:
 
-```shell script
-python setup.py install
+```
+$ python setup.py install
 ```
 
 ## Usage
 
 ### Commandline Interface
 
-```shell script
-piglet.py --help
+```
+$ piglet.py --help
 ```
 
 ### Piglet Library
