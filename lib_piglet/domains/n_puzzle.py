@@ -16,6 +16,7 @@ class Puzzle_Actions(IntEnum):
     START = -1
     GOAL = -2
 
+
 class puzzle_action:
     move_: int
     cost_: int
@@ -57,7 +58,6 @@ class puzzle_state:
 
     def __hash__(self):
         return hash(str(self.state_list_))
-
 
 
 class n_puzzle:

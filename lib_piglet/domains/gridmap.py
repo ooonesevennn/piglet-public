@@ -29,10 +29,8 @@ class gridmap:
         self.domain_file_ = filename
         map_fo = open(filename, "r")
 
-        print("parsing map")
         if(self.__parse_header(map_fo) == -1):
-            sys.stderr.write("err; invalid map header");
-            return
+            raise Exception("err; invalid map header")
 
         for x in range(int(self.width_)):
             self.map_ = [ [False] * int(self.height_) for x in range(int(self.width_)) ]

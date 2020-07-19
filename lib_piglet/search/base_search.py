@@ -8,8 +8,8 @@ import sys
 from lib_piglet.expanders.base_expander import base_expander
 from lib_piglet.search.search_node import search_node
 from lib_piglet.solution.solution import solution
+from lib_piglet.cli.cli_tool import statistic_template,statistic_header
 
-statistic_template = "{0:10}| {1:10}| {2:10}| {3:10}| {4:10}| {5:10}| {6:10}| {7:10}| {8:10} "
 
 class base_search:
     nodes_generated_: int = 0
@@ -23,16 +23,6 @@ class base_search:
     goal_ = None
     status_ = None
     cost_function_ = None
-    statistic_header_ = [
-        "Status",
-        "Cost",
-        "Depth",
-        "Nodes(exp)",
-        "Nodes(gen)",
-        "Runtime",
-        "start",
-        "goal",
-        "Problem"]
 
     def __init__(self, open_list, expander:base_expander, cost_function = None, time_limit: int = sys.maxsize):
         self.open_list_ = open_list
@@ -98,7 +88,7 @@ class base_search:
 
     # Print header for statistic on screen
     def print_header(self):
-        print(statistic_template.format(*self.get_header()))
+        print(statistic_template.format(*statistic_header))
 
     # Get statistic information
     # @return list A list of Statistic information
@@ -116,11 +106,6 @@ class base_search:
                 self.expander_]
 
         return sta_
-
-    # Get header for statistic
-    # @return list A list of header
-    def get_header(self):
-        return self.statistic_header_
 
     def reset_statistic(self):
         self.nodes_generated_: int = 0

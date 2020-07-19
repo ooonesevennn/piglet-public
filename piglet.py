@@ -1,41 +1,41 @@
-import sys, argparse
 from lib_piglet.domains.gridmap import gridmap, grid_action
+from lib_piglet.cli.cli_tool import *
+from lib_piglet.cli.run_tool import *
+import os
+def main():
 
-def main(argv):
+    args = parse_args()
+    if args.problem == None and args.scenario == None:
+        raise Exception("You must provide a problem file or a scenario file")
 
-    parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('integers', metavar='N', type=int, nargs='+',
-                        help='an integer for the accumulator')
-    parser.add_argument('--sum', dest='accumulate', action='store_const',
-                        const=sum, default=max,
-                        help='sum the integers (default: find the max)')
+    tasks = []
+    if args.problem != None:
+        tasks = parse_problem(args.problem)
+    else:
+        tasks = parse_scenario(args.scenario)
 
-    args = parser.parse_args()
+    print("Framework:\t", args.framework)
+    print("Strategy:\t", " ".join(args.strategy))
+    print_header()
+    if args.output_file:
+        out = open(args.output_file,"w+")
+        out.write(csv_header())
+    for t in tasks:
+        search = run_task(t,args)
+        search.print_statistic()
+        if args.output_file:
+            out.write(csv_template.format(*[str(x) for x in search.get_statistic()]))
 
-    inputfile = ''
-    outputfile = ''
+    if args.output_file:
+        out.close()
 
-    print('Input file is ', inputfile)
 
-    ga = grid_action.grid_action();
-    gm = gridmap.gridmap()
-    gm.load(inputfile)
-    gm.write()
 
-    print("1,1")
-    for move in gm.get_moves(1,1):
-        move.print()
 
-    print("2,2")
-    for move in gm.get_moves(2,2):
-        move.print()
 
-    print("0,0")
-    for move in gm.get_moves(0,0):
-        move.print()
         
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()
 
 
 
