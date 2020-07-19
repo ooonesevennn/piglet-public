@@ -10,7 +10,7 @@ def main():
 
     tasks = []
     if args.problem != None:
-        tasks = parse_problem(args.problem)
+        tasks.append(parse_problem(args.problem))
     else:
         tasks = parse_scenario(args.scenario)
 

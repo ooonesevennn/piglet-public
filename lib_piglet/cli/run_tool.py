@@ -1,9 +1,21 @@
+# cli/run_tool.py
+# This module provides function to run tasks for cli interface
+#
+# @author: mike
+# @created: 2020-07-19
+
+
 from lib_piglet.cli.cli_tool import task, args_interface, DOMAIN_TYPE
 from lib_piglet.domains import gridmap,n_puzzle
 from lib_piglet.expanders import grid_expander, n_puzzle_expander
 from lib_piglet.search import tree_search, graph_search, uniform_cost_search,base_search
 from lib_piglet.utils.data_structure import queue,stack,bin_heap
 
+
+# run task with cli arguments
+# @param t A task object describe the task domain, start and goal
+# @param args Arguments object from cli interface
+# @return search A search engine with search result
 def run_task(t: task, args: args_interface):
     if t.domain_type == DOMAIN_TYPE.gridmap:
         domain = gridmap.gridmap()

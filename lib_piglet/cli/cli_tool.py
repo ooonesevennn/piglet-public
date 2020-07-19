@@ -1,13 +1,14 @@
 # cli/cli_tools.py
-# This module implements a n_puzzle domain
+# This module provides tools for cli interface
 #
 # @author: mike
-# @created: 2020-07-16
+# @created: 2020-07-19
 
 import sys, argparse, os
 from enum import IntEnum
 
 
+# Describe parameters in arg parser result. For IDE convenient.
 class args_interface:
     problem: str
     framework: str
@@ -17,11 +18,13 @@ class args_interface:
     scenario: str
 
 
+# Describe domain type enum
 class DOMAIN_TYPE(IntEnum):
     gridmap = 0
     n_puzzle = 1
 
 
+# Describe task class.
 class task:
     domain: str
     domain_type: int
@@ -58,12 +61,18 @@ statistic_header = [
     "goal",
     "Problem"]
 
+
+# Print statistic header to screen
 def print_header():
     print(statistic_template.format(*statistic_header))
 
+
+# @return str Statistic header in csv format
 def csv_header():
     return csv_template.format(*statistic_header)
 
+# Parse arguments from cli interface
+# @return argument object
 def parse_args():
     parser = argparse.ArgumentParser(description="""
      This is piglet commandline interface. You can use piglet-cli run a variety search algorithms.
@@ -98,6 +107,9 @@ def parse_args():
     return args
 
 
+# Parse scenario file.
+# @param file Path to scenario file
+# @return [task] A list of tasks.
 def parse_scenario(file):
     if not os.path.exists(file):
         raise FileNotFoundError("Can't find scenario file: {}".format(file))
@@ -108,36 +120,14 @@ def parse_scenario(file):
         content = line.strip().split()
         if len(content)==0:
             continue
-
-        ta = task()
-        if not os.path.exists(content[0]):
-            raise FileNotFoundError("Can't find problem file: {}".format(content[0]))
-
-        ta.domain = content[0]
-        with open(ta.domain) as f:
-            header = f.readline().strip().split()
-            if len(header) != 2 or header[0] != "type" or header[1] not in domain_types:
-                raise TypeError("Can't recognize the type of this domain file. Supported domain type are: [{}]".format(
-                    ", ".join(domain_types)))
-
-            if header[1] == "n-puzzle":
-                ta.domain_type = DOMAIN_TYPE.n_puzzle
-            elif header[1] == "octile":
-                ta.domain_type = DOMAIN_TYPE.gridmap
-
-        if len(content)>=3:
-            start = content[1].split(",")
-            goal = content[2].split(",")
-            if len(start)!=2 or len(goal)!=2:
-                raise Exception("wrong format for start and goal location")
-            try:
-                ta.start_state = tuple(int(x) for x in start)
-                ta.goal_state = tuple(int(x) for x in goal)
-            except:
-                raise ValueError("Start or goal is not number")
+        ta = parse_problem(content)
         tasks.append(ta)
     return tasks
 
+
+# Parse individual problem to task
+# @param problem
+# @return task A task object
 def parse_problem(problem):
     ta = task()
     ta.domain = problem[0]
@@ -163,7 +153,7 @@ def parse_problem(problem):
                 ta.goal_state = tuple(int(x) for x in goal)
             except:
                 raise ValueError("Start or goal is not number")
-    return [ta]
+    return ta
 
 
 
