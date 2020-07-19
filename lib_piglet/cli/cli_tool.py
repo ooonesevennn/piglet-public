@@ -71,10 +71,9 @@ def parse_args():
     parser.add_argument("-p", "--problem", type=str, nargs="*",default=None,
                          help = "Specify the problem to solve. You should provide a domain file. \
                             Support domain file include N-puzzle file and gridmap file.\
-                            For grid map problem, also provide start coordinate (eg. 11,14 ) and goal coordinate.",
-                        metavar = "/path/to/domain-file start goal")
+                            For grid map problem, also provide start coordinate (eg. 11,14 ) and goal coordinate.")
 
-    parser.add_argument("--scenario", type=str, default=None,
+    parser.add_argument("-scen","--scenario", type=str, default=None,
                         help='Specify the scenario file. A scenario file  ', metavar="/path/to/scenario-file")
 
     parser.add_argument("-f", '--framework', type=str, default="uniform-cost-search",
