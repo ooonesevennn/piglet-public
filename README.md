@@ -8,6 +8,7 @@ python >= 3.6
 
 1. Clone the repo to your machine
 2. Run:
+
 ```shell script
 python setup.py install
 ```
@@ -15,6 +16,7 @@ python setup.py install
 ## Usage
 
 ### Commandline Interface
+
 ```shell script
 piglet.py --help
 ```
@@ -26,7 +28,7 @@ able to help you to build your application.
 #### Example 
 
 To use an algorithm you need a domain instance, an expander instance and a search instance. 
-```shell script
+```python
 import os,sys
 from lib_piglet.domains import gridmap
 from lib_piglet.expanders.grid_expander import grid_expander

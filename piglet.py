@@ -1,20 +1,20 @@
-import sys, getopt
+import sys, argparse
 from lib_piglet.domains.gridmap import gridmap, grid_action
 
 def main(argv):
+
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('integers', metavar='N', type=int, nargs='+',
+                        help='an integer for the accumulator')
+    parser.add_argument('--sum', dest='accumulate', action='store_const',
+                        const=sum, default=max,
+                        help='sum the integers (default: find the max)')
+
+    args = parser.parse_args()
+
     inputfile = ''
     outputfile = ''
-    try:
-      opts, args = getopt.getopt(argv,"hi:o:",["ifile=","ofile="])
-    except getopt.GetoptError:
-      print('test.py -i <inputfile>')
-      sys.exit(2)
-    for opt, arg in opts:
-      if opt == '-h':
-         print('test.py -i <inputfile>')
-         sys.exit()
-      elif opt in ("-i", "--ifile"):
-         inputfile = arg
+
     print('Input file is ', inputfile)
 
     ga = grid_action.grid_action();
