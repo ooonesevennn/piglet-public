@@ -59,6 +59,7 @@ class tree_search(base_search):
         # OPEN list is exhausted and we did not find the goal
         # return failure instead of a solution
         self.runtime_ = time.process_time() - self.start_time
+        self.status_ = "Failed"
         return None
 
 

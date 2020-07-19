@@ -73,11 +73,12 @@ class uniform_cost_search(base_search):
         # OPEN list is exhausted and we did not find the goal
         # return failure instead of a solution
         self.runtime_ = time.process_time() - self.start_time
+        self.status_ = "Failed"
         return None
 
     def relax(self, exist:search_node, new:search_node):
-        if exist.g_ > new.g_:
-            exist.g_ = new.g_
+        if exist.f_ > new.f_:
+            exist.f_ = new.f_
             exist.parent_ = new.parent_
             if exist.open_handle_ is not None:
                 # If handle exist, we are using bin_heap. We need to tell bin_heap one element's value
