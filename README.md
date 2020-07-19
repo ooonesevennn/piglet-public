@@ -1,5 +1,9 @@
 # Welcome to piglet
 
+## Requirement
+
+python >= 3.6
+
 ## Install
 
 1. Clone the repo to your machine
