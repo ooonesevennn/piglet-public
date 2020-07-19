@@ -1,5 +1,5 @@
 # expander/base_search.py
-# This module defines a base expander class and what attribute/method a expander class should have.
+# This module defines a virtual implementation of expand class and what attribute/method a expander class should have.
 #
 # @author: mike
 # @created: 2020-07-15

@@ -11,6 +11,11 @@ class solution:
     depth_: int
     paths_: list
 
+    # Get solution statistic
+    # @return list List of solution cost and depth.
+    def get_solution_info(self):
+        return [self.cost_, self.depth_]
+
     def __init__(self, path: list, depth: int, cost: int):
         self.cost_ = cost
         self.depth_ = depth

@@ -7,7 +7,7 @@
 # @created: 2020-07-14
 #
 
-from domains.grid_action import grid_action, Move_Actions
+from lib_piglet.domains.grid_action import grid_action, Move_Actions
 import sys
 
 class gridmap:

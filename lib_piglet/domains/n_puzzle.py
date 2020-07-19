@@ -14,6 +14,7 @@ class Puzzle_Actions(IntEnum):
     SWAP_RIGHT = 2
     SWAP_DOWN = 3
     START = -1
+    GOAL = -2
 
 class puzzle_action:
     move_: int
@@ -28,6 +29,18 @@ class puzzle_state:
     from_action_: int = -1
     x_index_: int
 
+    # Print current state in a nice layout
+    def print(self):
+        width = math.sqrt(len(self.state_list_))
+        str_ = "\n"
+        for i in range(1, len(self.state_list_) + 1):
+            str_ += str(self.state_list_[i - 1])
+            if i % width == 0:
+                str_ += "\n"
+            else:
+                str_ += "\t"
+        print(str_)
+
     def __init__(self, alist: list, x_index: int, from_action: int = Puzzle_Actions.START):
         self.state_list_ = alist
         self.from_action_ = from_action
@@ -37,18 +50,13 @@ class puzzle_state:
         return self.state_list_ == other.state_list_
 
     def __str__(self):
-        width = math.sqrt(len(self.state_list_))
-        str_ = "\n"
-        for i in range(1,len(self.state_list_)+1):
-            str_ += str(self.state_list_[i-1])
-            if i%width == 0:
-                str_ += "\n"
-            else:
-                str_ += "\t"
-        return str_
+        return Puzzle_Actions(self.from_action_).name
 
     def __repr__(self):
         return Puzzle_Actions(self.from_action_).name
+
+    def __hash__(self):
+        return hash(str(self.state_list_))
 
 
 
@@ -85,9 +93,9 @@ class n_puzzle:
             except:
                 raise Exception('Cannot find white space "x" in the puzzle')
 
-            self.start_ = puzzle_state(puzzle_list, x_index)
+            self.start_ = puzzle_state(puzzle_list, x_index, -1)
             goal_list = list(range(1, self.width_*self.width_)) + ["x"]
-            self.goal_ = puzzle_state(goal_list, self.width_-1)
+            self.goal_ = puzzle_state(goal_list, self.width_-1, -2)
             if not self.is_solvable():
                 raise Exception("The given puzzle is insolvable!")
 

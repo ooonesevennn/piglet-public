@@ -1,7 +1,7 @@
 
-from expanders.base_expander import base_expander
-from domains.n_puzzle import n_puzzle, Puzzle_Actions,puzzle_action, puzzle_state
-from search.search_node import search_node
+from lib_piglet.expanders.base_expander import base_expander
+from lib_piglet.domains.n_puzzle import n_puzzle, puzzle_action, puzzle_state
+from lib_piglet.search.search_node import search_node
 
 
 class n_puzzle_expander(base_expander):

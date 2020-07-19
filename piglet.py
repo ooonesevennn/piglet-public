@@ -1,5 +1,5 @@
 import sys, getopt
-from domains import gridmap, grid_action
+from lib_piglet.domains.gridmap import gridmap, grid_action
 
 def main(argv):
     inputfile = ''

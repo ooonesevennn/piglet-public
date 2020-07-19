@@ -9,10 +9,10 @@
 # @created: 2020-07-15
 #
 
-from search.search_node import search_node
-from expanders.base_expander import base_expander
-from domains.gridmap import gridmap
-from domains.grid_action import  Move_Actions
+from lib_piglet.search.search_node import search_node
+from lib_piglet.expanders.base_expander import base_expander
+from lib_piglet.domains.gridmap import gridmap
+from lib_piglet.domains.grid_action import  Move_Actions
 
 class grid_expander(base_expander):
     gm_: gridmap
