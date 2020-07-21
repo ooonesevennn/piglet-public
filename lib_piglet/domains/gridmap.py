@@ -1,14 +1,23 @@
 # gridmap
 # 
-# Reads and writes 2d grid maps
+# Reads and writes 2d grid maps.
 #
-#
+# For gridmap, state is pair of (x,y) tuple
 # @author: dharabor
 # @created: 2020-07-14
 #
 
 from lib_piglet.domains.grid_action import grid_action, Move_Actions
-import sys
+import sys, math
+
+
+def gridmap_manhattan_heuristic(current_state, goal_state):
+    return abs(current_state[0] - goal_state[0]) + abs(current_state[1] - goal_state[1])
+
+
+def gridmap_straight_heuristic(current_state, goal_state):
+    return round(math.sqrt((current_state[0] - goal_state[0])**2 + (current_state[1] - goal_state[1])**2), 5)
+
 
 class gridmap:
     map: list
@@ -17,11 +26,12 @@ class gridmap:
     map_size_: int
     domain_file_: str
     
-    def __init__(self):
+    def __init__(self,filename: str):
         self.map_ = []
         self.height_ = int(0)
         self.width_ = int(0)
         self.map_size_ = int(0)
+        self.load(filename)
 
     # Load map in the map instance
     # @param filename The path to map file.

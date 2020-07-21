@@ -22,13 +22,13 @@ class base_search:
     start_ = None
     goal_ = None
     status_ = None
-    cost_function_ = None
+    heuristic_function_ = None
 
-    def __init__(self, open_list, expander:base_expander, cost_function = None, time_limit: int = sys.maxsize):
+    def __init__(self, open_list, expander:base_expander, heuristic_function = None, time_limit: int = sys.maxsize):
         self.open_list_ = open_list
         self.expander_ = expander
         self.time_limit_ = time_limit
-        self.cost_function_ = cost_function
+        self.heuristic_function_ = heuristic_function
 
     # Search the path between two state
     # @param start_state The start of the path
@@ -52,21 +52,18 @@ class base_search:
             # NB: we usually do this only for the start node
             retval.g_ = 0
             retval.depth_ = 0
-            if self.cost_function_ == None:
-                retval.h_ = 0
-                retval.f_ = retval.g_
-            else:
-                self.cost_function_(retval)
         else:
             # initialise the node based on its parent
             retval.g_ = parent.g_ + action.cost_
             retval.depth_ = parent.depth_ + 1
             retval.parent_ = parent
-            if self.cost_function_ == None:
-                retval.h_ = 0
-                retval.f_ = retval.g_
-            else:
-                self.cost_function(retval)
+
+        if self.heuristic_function_ is None:
+            retval.h_ = 0
+            retval.f_ = retval.g_
+        else:
+            retval.h_ = self.heuristic_function_(retval.state_, self.goal_)
+            retval.f_ = retval.g_ + retval.h_
         return retval
 
     # extract the computed solution by following backpointers
@@ -81,14 +78,6 @@ class base_search:
 
         sol.reverse()
         return solution(sol,depth,cost)
-
-    # Print statistic information on screen
-    def print_statistic(self):
-        print(statistic_template.format(*[str(x) for x in self.get_statistic()]))
-
-    # Print header for statistic on screen
-    def print_header(self):
-        print(statistic_template.format(*statistic_header))
 
     # Get statistic information
     # @return list A list of Statistic information

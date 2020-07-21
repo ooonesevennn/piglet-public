@@ -39,7 +39,7 @@ class tree_search(base_search):
                 self.runtime_ = time.process_time() - self.start_time
                 if self.runtime_ > self.time_limit_:
                     self.status_ = "Time out"
-                    break
+                    return None
             # goal test. if successful, return the solution
             if(current.state_ == goal_state):
                 self.solution_ = self.solution(current)

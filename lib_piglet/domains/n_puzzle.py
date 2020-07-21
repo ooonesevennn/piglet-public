@@ -1,10 +1,11 @@
 # domains/n_puzzle.py
 # This module implements a n_puzzle domain
 #
+# For n_puzzle, a state is a puzzle_state object. __eq__ is defined in puzzle_state for equal check.
 # @author: mike
 # @created: 2020-07-16
 
-import math
+import math,sys
 from enum import IntEnum
 
 
@@ -60,46 +61,77 @@ class puzzle_state:
         return hash(str(self.state_list_))
 
 
+def n_puzzle_manhattan_heuristic(current_state: puzzle_state, goal_state: puzzle_state):
+    length = len(goal_state.state_list_)
+    width = math.sqrt(length)
+    h = 0
+    for g in range(0,length):
+        c = current_state.state_list_.index(goal_state.state_list_[g])
+        h += abs(c/width - g/width) + abs(c%width - g%width)
+    return h
+
+
+def n_puzzle_straight_heuristic(current_state, goal_state):
+    length = len(goal_state.state_list_)
+    width = math.sqrt(length)
+    h = 0
+    for g in range(0, length):
+        c = current_state.state_list_.index(goal_state.state_list_[g])
+        h += round(math.sqrt((c / width - g / width)**2 + (c % width - g % width)**2))
+    return h
+
+
 class n_puzzle:
     width_: int
     size_: int
     goal_: puzzle_state
     start_: puzzle_state
     swap_offset: list
-    domain_file_: str = "Unknown"
+    domain_file_ = "Unknown"
 
     # Load a problem from a file
     # @param filename The path to a puzzle file
-    def load(self, filename: str):
-        self.domain_file_ = filename
-        with open(filename) as file:
-
-            type_line = file.readline().strip().split(" ")
-            if len(type_line) < 2 or type_line[0] != "type" or type_line[1] != "n-puzzle":
-                raise Exception("File type is not n-puzzle")
-            width_line = file.readline().strip().split(" ")
-            if len(width_line) < 2 or width_line[0] != "width":
-                raise Exception("Can't read puzzle width")
-            try:
-                self.width_ = int(width_line[1])
-                self.size_ = self.width_*self.width_
-            except:
-                raise Exception("Can't read puzzle width")
-
-            puzzle_list = self.__parse_puzzle(file)
-
-            try:
-                x_index = puzzle_list.index("x")
-            except:
-                raise Exception('Cannot find white space "x" in the puzzle')
-
-            self.start_ = puzzle_state(puzzle_list, x_index, -1)
-            goal_list = list(range(1, self.width_*self.width_)) + ["x"]
-            self.goal_ = puzzle_state(goal_list, self.width_-1, -2)
-            if not self.is_solvable():
-                raise Exception("The given puzzle is insolvable!")
-
+    def __init__(self, width: int):
+        self.width_ = width
+        self.size_ = width*width
+        goal_list = list(range(1, self.width_*self.width_)) + ["x"]
+        self.goal_ = puzzle_state(goal_list, self.width_-1, -2)
+        self.domain_file_ = width
         self.__init_swap_offset()
+
+
+    def set_start(self, alist: list):
+        puzzle_list = []
+        if len(alist) != self.size_:
+            print("err; The length of puzzle not equal to puzzle width^2", file = sys.stderr)
+            exit(1)
+        for item in alist:
+            if type(item) == str:
+                if item.isnumeric():
+                    num = int(item)
+                else:
+                    num = "x"
+            else:
+                try:
+                    num = int(item)
+                except:
+                    print("err; unknown element type for: {item}".format(item), file=sys.stderr)
+                    exit(1)
+
+            if num!="x" and (num <= 0 or num >= self.size_):
+                print("err; Number {} not in range 1~{}".format(num, self.size_ - 1), file=sys.stderr)
+                exit(1)
+
+            if num in puzzle_list:
+                print("You can't have two {} in one puzzle".format(num), file = sys.stderr)
+                exit(1)
+            puzzle_list.append(num)
+
+        self.start_ = puzzle_state(puzzle_list,puzzle_list.index("x"))
+        if not self.is_solvable():
+            print("The given puzzle {} is not solvable!".format(puzzle_list),file = sys.stderr)
+            exit(1)
+
 
 
     # @return puzzle_state The start state of the n-puzzle
@@ -135,7 +167,7 @@ class n_puzzle:
 
 
     def __str__(self):
-        return self.domain_file_
+        return "{}-puzzle".format(self.size_)
 
     def __parse_puzzle(self, file):
         puzzle_list = []

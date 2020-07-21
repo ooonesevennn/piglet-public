@@ -32,18 +32,6 @@ class heap_item:
         self.item_ = item
         self.handle_id_ = handle_id
 
-    def __le__(self, other):
-        return self.item_ <= other.item_
-
-    def __lt__(self, other):
-        return self.item_ < other.item_
-
-    def __ge__(self, other):
-        return self.item_ >= other.item_
-
-    def __gt__(self, other):
-        return self.item_ >= other.item_
-
     def __eq__(self, other):
         return self.item_ == other.item_
 
@@ -63,10 +51,17 @@ class bin_heap:
     currentSize: int = 0
     current_id: int = 0
     handle: dict ={}
+    compare_function = None #Compare_function return true if argument1 >= argument2
 
-    def __init__(self):
+    def __init__(self, compare_function):
+        """
+        Initiate binary heap
+        :param compare_function: A function that return true if give two search_nodes as arguments and node1 >= node2.
+        """
         self.heapList = [0]
         self.currentSize = 0
+        self.compare_function = compare_function
+
 
     def insert(self, item):
         """
@@ -191,7 +186,7 @@ class bin_heap:
 
     def __percUp(self, i):
         while i // 2 > 0:
-            if self.heapList[i] < self.heapList[i // 2]:
+            if not self.compare_function(self.heapList[i].item_,self.heapList[i // 2].item_):
                 tmp = self.heapList[i // 2]
                 self.heapList[i // 2] = self.heapList[i]
                 self.heapList[i] = tmp
@@ -202,7 +197,7 @@ class bin_heap:
     def __percDown(self, i):
         while (i * 2) <= self.currentSize:
             mc = self.__minChild(i)
-            if self.heapList[i] > self.heapList[mc]:
+            if self.compare_function(self.heapList[i].item_, self.heapList[mc].item_):
                 tmp = self.heapList[i]
                 self.heapList[i] = self.heapList[mc]
                 self.heapList[mc] = tmp
@@ -214,7 +209,7 @@ class bin_heap:
         if i * 2 + 1 > self.currentSize:
             return i * 2
         else:
-            if self.heapList[i * 2] < self.heapList[i * 2 + 1]:
+            if not self.compare_function(self.heapList[i * 2].item_, self.heapList[i * 2 + 1].item_):
                 return i * 2
             else:
                 return i * 2 + 1

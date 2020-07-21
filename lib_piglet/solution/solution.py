@@ -22,7 +22,7 @@ class solution:
         self.paths_ = path
 
     def __str__(self):
-        return "Solution:\t{} \nSolution cost:\t{} \nSolution depth:\t{}\n".format(self.paths_,self.cost_,self.depth_)
+        return "{}".format(self.paths_)
 
     def __repr__(self):
         return self.__str__()

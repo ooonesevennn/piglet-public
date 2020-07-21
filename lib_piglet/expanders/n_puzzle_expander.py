@@ -1,23 +1,22 @@
 
 from lib_piglet.expanders.base_expander import base_expander
-from lib_piglet.domains.n_puzzle import n_puzzle, puzzle_action, puzzle_state
+from lib_piglet.domains.n_puzzle import n_puzzle, puzzle_state, puzzle_action
 from lib_piglet.search.search_node import search_node
 
-
 class n_puzzle_expander(base_expander):
-    puzzle_: n_puzzle
+    domain_: n_puzzle
     succ_: list
     nodes_: list
 
 
     def __init__(self,puzzle: n_puzzle):
-        self.puzzle_ = puzzle
+        self.domain_ = puzzle
         self.succ_ = []
 
     def expand(self, current_node: search_node):
         self.succ_.clear()
         current_state: puzzle_state = current_node.state_
-        for action in range(0,len(self.puzzle_.swap_offset)):
+        for action in range(0,len(self.domain_.swap_offset)):
             successor = self.__move(current_state, action)
             if successor == None:
                 continue
@@ -26,8 +25,8 @@ class n_puzzle_expander(base_expander):
 
 
     def __move(self, current: puzzle_state, action: int ):
-        new_x_index = current.x_index_ + self.puzzle_.swap_offset[action]
-        if not self.puzzle_.is_valid_move(current.x_index_, new_x_index):
+        new_x_index = current.x_index_ + self.domain_.swap_offset[action]
+        if not self.domain_.is_valid_move(current.x_index_, new_x_index):
             return None
         new_list = current.state_list_[:]
         temp = new_list[current.x_index_]
@@ -36,7 +35,7 @@ class n_puzzle_expander(base_expander):
         return puzzle_state(new_list,new_x_index,action), puzzle_action(action, 1)
 
     def __str__(self):
-        return str(self.puzzle_)
+        return str(self.domain_)
 
 
 

@@ -49,18 +49,6 @@ class search_node:
     def __repr__(self):
         return self.state_.__repr__()
 
-    def __le__(self, other):
-        return self.f_<= other.f_
-
-    def __ge__(self, other):
-        return self.f_ >= other.f_
-
-    def __lt__(self, other):
-        return self.f_ < other.f_
-
-    def __gt__(self, other):
-        return self.f_ > other.f_
-
     def __eq__(self, other):
         if (other == None):
             return False
@@ -68,6 +56,25 @@ class search_node:
 
     def __hash__(self):
         return hash(self.state_)
+
+
+# Compare two node by g value
+# Return true if a >= b
+def compare_node_g(a: search_node, b:search_node):
+    return a.g_>=b.g_
+
+
+# Compare two node by f value
+# Return true if a >= b
+def compare_node_f(a: search_node, b:search_node):
+    return a.f_>=b.f_
+
+
+# Compare two node by h value
+# Return true if a >= b
+def compare_node_h(a: search_node, b:search_node):
+    return a.h_>=b.h_
+
 
 
 

@@ -32,25 +32,28 @@ class task:
     goal_state = None
 
 
-framework_choice = ["tree-search",
-                    "graph-search",
-                    "uniform-cost-search"
+framework_choice = ["tree",
+                    "graph"
                     ]
 
-strategy_choice = ["best-first",
-                   "dfs",
-                   "bfs",
+strategy_choice = ["breath",
+                   "depth",
+                   "uniform",
+                   "a-star",
+                   "greedy-best"
                     ]
-domain_types = ["octile",
+domain_types = ["grid4",
                  "n-puzzle"
                  ]
 
-statistic_template = "{0:10}| {1:10}| {2:10}| {3:10}| {4:10}| {5:10}| {6:10}| {7:10}| {8:10} "
-csv_template = '"{0}","{1}","{2}","{3}","{4}","{5}","{6}","{7}","{8}"\n'
+statistic_template = "{0:10}| {1:10}| {2:10}| {3:10}| {4:10}| {5:10}| {6:10}| {7:10}| {8:10}| {9:10}| {10:10}| {11:11}"
+csv_template = '"{0}","{1}","{2}","{3}","{4}","{5}","{6}","{7}","{8}","{9}","{10}","{11}"\n'
 
 
 
 statistic_header = [
+    "Framework",
+    "Strategy",
     "Status",
     "Cost",
     "Depth",
@@ -59,7 +62,9 @@ statistic_header = [
     "Runtime",
     "start",
     "goal",
-    "Problem"]
+    "Problem",
+    "Solution"
+]
 
 
 # Print statistic header to screen
@@ -71,31 +76,51 @@ def print_header():
 def csv_header():
     return csv_template.format(*statistic_header)
 
+
+# statistic to string
+# @return str A string of statistic information
+def statistic_string(args,search):
+    if args.solution:
+        return statistic_template.format(str(args.framework), " ".join(args.strategy),
+                                         *[str(x) for x in search.get_statistic()],
+                                         str(search.solution_))
+    return statistic_template.format(str(args.framework), " ".join(args.strategy),
+                                     *[str(x) for x in search.get_statistic()],"Hidden")
+
+
+# statistic to csv
+# @return str A csv format string of statistic information
+def statistic_csv(args,search):
+    if args.solution:
+        return csv_template.format(str(args.framework), " ".join(args.strategy),
+                                         *[str(x) for x in search.get_statistic()],
+                                         search.solution_)
+    return csv_template.format(str(args.framework), " ".join(args.strategy),
+                                     *[str(x) for x in search.get_statistic()], "Hidden")
+
 # Parse arguments from cli interface
 # @return argument object
 def parse_args():
     parser = argparse.ArgumentParser(description="""
-     This is piglet commandline interface. You can use piglet-cli run a variety search algorithms.
+     This is piglet commandline interface. You can use piglet-cli run a variety search algorithms. 
+     A problem scenario file must be provided with -p, unless you problems are passed in through stdin.
+     The framework is graph search on default. You can switch to tree search by -f tree.
+     The strategy is uniform-cost search by default. You can switch to breath first, depth first or A-star by -s.
      """)
-    parser.add_argument("-p", "--problem", type=str, nargs="*",default=None,
-                         help = "Specify the problem to solve. You should provide a domain file. \
-                            Support domain file include N-puzzle file and gridmap file.\
-                            For grid map problem, also provide start coordinate (eg. 11,14 ) and goal coordinate.")
 
-    parser.add_argument("-scen","--scenario", type=str, default=None,
-                        help='Specify the scenario file. A scenario file  ', metavar="/path/to/scenario-file")
+    parser.add_argument("-p","--problem", type=str, default=None,
+                        help='Specify the problem scenario file. A problem scenario file  ', metavar="/Path/to/scenario_file")
 
-    parser.add_argument("-f", '--framework', type=str, default="uniform-cost-search",
+    parser.add_argument("-f", '--framework', type=str, default="graph",
                         choices=framework_choice,
                         help='Specify the search framework you want to use. \
                          Supported frameworks are: [{}]'.format(", ".join(framework_choice)),
-                        metavar="tree-search")
+                        metavar="graph")
 
-    parser.add_argument("-s", '--strategy', type=str, default=["best-first"],
-                        nargs="*",
+    parser.add_argument("-s", '--strategy', type=str, default=["uniform"],
                         choices=strategy_choice,
                         help='Specify the search strategy you want to use.\
-                          Supported strategies are: [{}]'.format(", ".join(strategy_choice)), metavar="best-first")
+                          Supported strategies are: [{}]'.format(", ".join(strategy_choice)), metavar="uniform")
 
     parser.add_argument("-t", '--time-limit', type=int, default=sys.maxsize,
                         help='Specify the time-limit for the search. (seconds)', metavar=30)
@@ -103,56 +128,41 @@ def parse_args():
     parser.add_argument("-o", "--output-file", type=str, default=None,
                         help="Output results to a file")
 
+    parser.add_argument("--solution", default=False,action="store_true",
+                        help="Print/write solution")
+
+
     args: args_interface = parser.parse_args()
     return args
 
 
-# Parse scenario file.
-# @param file Path to scenario file
-# @return [task] A list of tasks.
-def parse_scenario(file):
-    if not os.path.exists(file):
-        raise FileNotFoundError("Can't find scenario file: {}".format(file))
-    file = open(file)
-    header = file.readline().strip().split()
-    tasks = []
-    for line in file:
-        content = line.strip().split()
-        if len(content)==0:
-            continue
-        ta = parse_problem(content)
-        tasks.append(ta)
-    return tasks
-
-
 # Parse individual problem to task
-# @param problem
+# @param problem. A list of scenario entry
 # @return task A task object
-def parse_problem(problem):
+def parse_problem(problem: list,domain_type:int):
     ta = task()
-    ta.domain = problem[0]
-
-    if not os.path.exists(ta.domain):
-        raise FileNotFoundError("Problem file")
-    with open(ta.domain) as f:
-        header = f.readline().strip().split()
-        if len(header) != 2 or header[0] != "type" or header[1] not in domain_types:
-            raise TypeError("Can't recognize the type of this domain file. Supported domain type are: [{}]".format(
-                ", ".join(domain_types)))
-
-        if header[1] == "n-puzzle":
-            ta.domain_type = DOMAIN_TYPE.n_puzzle
-        elif header[1] == "octile":
-            ta.domain_type = DOMAIN_TYPE.gridmap
-            start = problem[1].split(",")
-            goal = problem[2].split(",")
-            if len(start) != 2 or len(goal) != 2:
-                raise Exception("wrong format for start and goal location")
-            try:
-                ta.start_state = tuple(int(x) for x in start)
-                ta.goal_state = tuple(int(x) for x in goal)
-            except:
-                raise ValueError("Start or goal is not number")
+    ta.domain_type = domain_type
+    if domain_type == DOMAIN_TYPE.n_puzzle:
+        try:
+            ta.domain = int(problem[0])
+        except:
+            print("err; Cannot convert {} to puzzle width".format(problem[0]),file=sys.stderr)
+            exit(1)
+        ta.start_state = problem[1].split(",")
+    elif domain_type == DOMAIN_TYPE.gridmap:
+        ta.domain = problem[1]
+        if len(problem) < 9:
+            print("err; the length of an entry of grid problem should be 9. Check the sample grid scenario format",file=sys.stderr)
+            exit(1)
+        try:
+            ta.start_state = (int(problem[4]), int(problem[5]))
+            ta.goal_state = (int(problem[6]), int(problem[7]))
+        except:
+            print("err; Cannot convert {} {} {} {} to coordinates".format(*problem[4:8]),file=sys.stderr)
+            exit(1)
+    else:
+        print("err; Unknown domain type", file=sys.stderr)
+        exit(1)
     return ta
 
 

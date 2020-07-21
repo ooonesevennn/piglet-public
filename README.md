@@ -21,6 +21,11 @@ $ python setup.py install
 $ piglet.py --help
 ```
 
+run a scenario:
+```
+$ python3 piglet.py -p ./test/example_grid_scenario.scen  
+```
+
 ### Piglet Library
 piglet provides a variety of flexible search algorithms. These algorithms are 
 able to help you to build your application.

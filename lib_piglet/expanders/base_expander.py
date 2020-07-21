@@ -7,6 +7,7 @@
 
 
 class base_expander:
+    domain_ = None
 
     def __init__(self, domain):
         pass
