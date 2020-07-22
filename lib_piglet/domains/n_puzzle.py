@@ -1,4 +1,4 @@
-# domains/n_puzzle.py
+# domains/n_puzzle_h.py
 # This module implements a n_puzzle domain
 #
 # For n_puzzle, a state is a puzzle_state object. __eq__ is defined in puzzle_state for equal check.
@@ -8,7 +8,6 @@
 import math,sys
 from enum import IntEnum
 
-
 class Puzzle_Actions(IntEnum):
     SWAP_UP = 0
     SWAP_LEFT = 1
@@ -16,15 +15,6 @@ class Puzzle_Actions(IntEnum):
     SWAP_DOWN = 3
     START = -1
     GOAL = -2
-
-
-class puzzle_action:
-    move_: int
-    cost_: int
-    def __init__(self, action: int, cost:int):
-        self.move_ = action
-        self.cost_ = cost
-
 
 class puzzle_state:
     state_list_: list
@@ -61,26 +51,6 @@ class puzzle_state:
         return hash(str(self.state_list_))
 
 
-def n_puzzle_manhattan_heuristic(current_state: puzzle_state, goal_state: puzzle_state):
-    length = len(goal_state.state_list_)
-    width = math.sqrt(length)
-    h = 0
-    for g in range(0,length):
-        c = current_state.state_list_.index(goal_state.state_list_[g])
-        h += abs(c/width - g/width) + abs(c%width - g%width)
-    return h
-
-
-def n_puzzle_straight_heuristic(current_state, goal_state):
-    length = len(goal_state.state_list_)
-    width = math.sqrt(length)
-    h = 0
-    for g in range(0, length):
-        c = current_state.state_list_.index(goal_state.state_list_[g])
-        h += round(math.sqrt((c / width - g / width)**2 + (c % width - g % width)**2))
-    return h
-
-
 class n_puzzle:
     width_: int
     size_: int
@@ -97,7 +67,6 @@ class n_puzzle:
         goal_list = list(range(1, self.width_*self.width_)) + ["x"]
         self.goal_ = puzzle_state(goal_list, self.width_-1, -2)
         self.domain_file_ = width
-        self.__init_swap_offset()
 
 
     def set_start(self, alist: list):
@@ -152,20 +121,6 @@ class n_puzzle:
             return inversions%2 == 0
 
 
-    # Return is the new index/location valid
-    # @param old_index The old index for x(white space)
-    # @param new_index The new index for x(white space)
-    # @return bool True if new_index is valid
-    def is_valid_move(self,old_index:int, new_index:int):
-        if new_index < 0 or new_index >= self.width_* self.width_:
-            return False
-        curr_x = old_index // self.width_
-        curr_y = old_index % self.width_
-        next_x = new_index // self.width_
-        next_y = new_index % self.width_
-        return abs(next_x - curr_x) + abs(next_y - curr_y) < 2
-
-
     def __str__(self):
         return "{}-puzzle".format(self.size_)
 
@@ -188,12 +143,6 @@ class n_puzzle:
                 puzzle_list.append(num)
         return puzzle_list
 
-    def __init_swap_offset(self):
-        self.swap_offset = [None]*4
-        self.swap_offset[Puzzle_Actions.SWAP_UP] = -1*self.width_
-        self.swap_offset[Puzzle_Actions.SWAP_DOWN] = self.width_
-        self.swap_offset[Puzzle_Actions.SWAP_LEFT] = -1
-        self.swap_offset[Puzzle_Actions.SWAP_RIGHT] = 1
 
     def __get_inversion(self):
         count = 0

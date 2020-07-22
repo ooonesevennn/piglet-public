@@ -7,16 +7,7 @@
 # @created: 2020-07-14
 #
 
-from lib_piglet.domains.grid_action import grid_action, Move_Actions
 import sys, math
-
-
-def gridmap_manhattan_heuristic(current_state, goal_state):
-    return abs(current_state[0] - goal_state[0]) + abs(current_state[1] - goal_state[1])
-
-
-def gridmap_straight_heuristic(current_state, goal_state):
-    return round(math.sqrt((current_state[0] - goal_state[0])**2 + (current_state[1] - goal_state[1])**2), 5)
 
 
 class gridmap:
@@ -76,43 +67,6 @@ class gridmap:
                 else:
                     print('@', end="")
             print()
-
-    # return a list with all the applicable/valid actions
-    # at tile (x, y)
-    # @param loc A (x,y) coordinate tuple
-    # @return a list of gridaction object.
-    def get_actions(self, loc: tuple):
-        x = loc[0]
-        y = loc[1]
-        retval = []
-
-        if(x < 0 or x >= int(self.width_) or y < 0 or y >= int(self.height_)):
-            return retval
-
-        if(self.map_[x][y] == False):
-            return retval
-        
-        if(int(y-1) >= 0 and self.map_[x][y-1]):
-            retval.append(grid_action())
-            retval[-1].move_ = Move_Actions.MOVE_UP
-            retval[-1].cost_ = 1;
-
-        if(int(y+1) < int(self.height_) and self.map_[x][y+1]):
-            retval.append(grid_action())
-            retval[-1].move_ = Move_Actions.MOVE_DOWN
-            retval[-1].cost_ = 1;
-
-        if((int(x)-1) >= 0 and self.map_[x-1][y]):
-            retval.append(grid_action())
-            retval[-1].move_ = Move_Actions.MOVE_LEFT
-            retval[-1].cost_ = 1;
-
-        if((int(x)+1) < int(self.width_) and self.map_[x+1][y]):
-            retval.append(grid_action())
-            retval[-1].move_ = Move_Actions.MOVE_RIGHT
-            retval[-1].cost_ = 1;
-
-        return retval
 
     # tells whether the tile at location @param index is traversable or not
     # @return True/False

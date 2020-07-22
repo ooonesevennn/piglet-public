@@ -1,4 +1,3 @@
-from lib_piglet.domains.gridmap import gridmap, grid_action
 from lib_piglet.cli.cli_tool import *
 from lib_piglet.cli.run_tool import *
 import os
@@ -40,6 +39,7 @@ def main():
                 domain_type = DOMAIN_TYPE.gridmap
             else:
                 print("err; Unknown domain type: {}".format(content[1]),file=sys.stderr)
+                exit(1)
             header_readed = True
             continue
 

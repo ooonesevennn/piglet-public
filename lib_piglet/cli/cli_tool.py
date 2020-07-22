@@ -16,6 +16,7 @@ class args_interface:
     time_limit: int
     output_file: str
     scenario: str
+    depth_limit:int
 
 
 # Describe domain type enum
@@ -33,7 +34,8 @@ class task:
 
 
 framework_choice = ["tree",
-                    "graph"
+                    "graph",
+                    "iterative-depth"
                     ]
 
 strategy_choice = ["breath",
@@ -46,7 +48,7 @@ domain_types = ["grid4",
                  "n-puzzle"
                  ]
 
-statistic_template = "{0:10}| {1:10}| {2:10}| {3:10}| {4:10}| {5:10}| {6:10}| {7:10}| {8:10}| {9:10}| {10:10}| {11:11}"
+statistic_template = "{0:15}| {1:10}| {2:10}| {3:10}| {4:10}| {5:10}| {6:10}| {7:10}| {8:10}| {9:10}| {10:20}| {11:20}"
 csv_template = '"{0}","{1}","{2}","{3}","{4}","{5}","{6}","{7}","{8}","{9}","{10}","{11}"\n'
 
 
@@ -81,10 +83,10 @@ def csv_header():
 # @return str A string of statistic information
 def statistic_string(args,search):
     if args.solution:
-        return statistic_template.format(str(args.framework), " ".join(args.strategy),
+        return statistic_template.format(str(args.framework), args.strategy,
                                          *[str(x) for x in search.get_statistic()],
                                          str(search.solution_))
-    return statistic_template.format(str(args.framework), " ".join(args.strategy),
+    return statistic_template.format(str(args.framework), args.strategy,
                                      *[str(x) for x in search.get_statistic()],"Hidden")
 
 
@@ -92,10 +94,10 @@ def statistic_string(args,search):
 # @return str A csv format string of statistic information
 def statistic_csv(args,search):
     if args.solution:
-        return csv_template.format(str(args.framework), " ".join(args.strategy),
+        return csv_template.format(str(args.framework), args.strategy,
                                          *[str(x) for x in search.get_statistic()],
                                          search.solution_)
-    return csv_template.format(str(args.framework), " ".join(args.strategy),
+    return csv_template.format(str(args.framework), args.strategy,
                                      *[str(x) for x in search.get_statistic()], "Hidden")
 
 # Parse arguments from cli interface
@@ -114,13 +116,14 @@ def parse_args():
     parser.add_argument("-f", '--framework', type=str, default="graph",
                         choices=framework_choice,
                         help='Specify the search framework you want to use. \
-                         Supported frameworks are: [{}]'.format(", ".join(framework_choice)),
+                         Supported frameworks are: [{}].'.format(", ".join(framework_choice)),
                         metavar="graph")
 
     parser.add_argument("-s", '--strategy', type=str, default=["uniform"],
                         choices=strategy_choice,
                         help='Specify the search strategy you want to use.\
-                          Supported strategies are: [{}]'.format(", ".join(strategy_choice)), metavar="uniform")
+                          Supported strategies are: [{}]. If using strategy "depth" and framework "iterative-depth",\
+                           a maximum depth limit also need to be specified after "depth".'.format(", ".join(strategy_choice)), metavar="uniform")
 
     parser.add_argument("-t", '--time-limit', type=int, default=sys.maxsize,
                         help='Specify the time-limit for the search. (seconds)', metavar=30)
@@ -132,7 +135,18 @@ def parse_args():
                         help="Print/write solution")
 
 
-    args: args_interface = parser.parse_args()
+    args , unknown = parser.parse_known_args()
+    args:args_interface = args
+    args.depth_limit = None
+    if args.framework == "iterative-depth":
+        if args.strategy != "a-star" and args.strategy != "depth":
+            print("err; With iterative-deepening search, the strategy can only be depth or a-star ", file = sys.stderr)
+            exit(1)
+        if args.strategy == "depth":
+            if len(unknown) == 0 or not unknown[0].isnumeric():
+                print("err; With iterative-deepening depth first search, you must specify a maximum depth limit followed by 'depth'.", file=sys.stderr)
+                exit(1)
+            args.depth_limit = int(unknown[0])
     return args
 
 
