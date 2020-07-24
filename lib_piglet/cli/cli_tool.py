@@ -35,7 +35,7 @@ class task:
 
 framework_choice = ["tree",
                     "graph",
-                    "iterative-depth"
+                    "iterative"
                     ]
 
 strategy_choice = ["breath",
@@ -138,15 +138,11 @@ def parse_args():
     args , unknown = parser.parse_known_args()
     args:args_interface = args
     args.depth_limit = None
-    if args.framework == "iterative-depth":
+    if args.framework == "iterative":
         if args.strategy != "a-star" and args.strategy != "depth":
             print("err; With iterative-deepening search, the strategy can only be depth or a-star ", file = sys.stderr)
             exit(1)
-        if args.strategy == "depth":
-            if len(unknown) == 0 or not unknown[0].isnumeric():
-                print("err; With iterative-deepening depth first search, you must specify a maximum depth limit followed by 'depth'.", file=sys.stderr)
-                exit(1)
-            args.depth_limit = int(unknown[0])
+
     return args
 
 

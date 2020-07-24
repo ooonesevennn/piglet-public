@@ -21,7 +21,7 @@ class tree_search(base_search):
     # @param start_state The start of the path
     # @param goal_state Then goal of the path
     # @return a list of locations between start and goal
-    def get_path(self,start_state, goal_state):
+    def get_path(self,start_state, goal_state, depth_limit:int = sys.maxsize, cost_limit:int  = sys.maxsize):
         self.open_list_.clear()
         self.reset_statistic()
         self.start_ = start_state
@@ -29,6 +29,10 @@ class tree_search(base_search):
         self.start_time = time.process_time()
         start_node = self.generate(start_state, None, None)
         self.open_list_.push(start_node)
+
+        # For depth/cost limited search, we need to track the minimal threshold of nodes out of bound.
+        min_next_g = sys.maxsize
+        min_next_f = sys.maxsize
 
         # continue while there are still nods on OPEN
         while (len(self.open_list_) > 0):
@@ -39,13 +43,14 @@ class tree_search(base_search):
                 self.runtime_ = time.process_time() - self.start_time
                 if self.runtime_ > self.time_limit_:
                     self.status_ = "Time out"
-                    return None
+                    return None,min_next_g,min_next_f
+
             # goal test. if successful, return the solution
             if(current.state_ == goal_state):
                 self.solution_ = self.solution(current)
                 self.status_ = "Success"
                 self.runtime_ = time.process_time() - self.start_time
-                return self.solution_
+                return self.solution_,min_next_g,min_next_f
 
             # expand the current node
             for succ in self.expander_.expand(current):
@@ -53,6 +58,13 @@ class tree_search(base_search):
                 # which we map to a corresponding search_node and push
                 # then push onto the OPEN list
                 succ_node = self.generate(succ[0], succ[1], current)
+                # Check does child node exceed depth limit or cost limit
+                if succ_node.g_ > depth_limit or succ_node.f_ > cost_limit:
+                    if min_next_g > succ_node.g_:
+                        min_next_g = succ_node.g_
+                    if min_next_f > succ_node.f_:
+                        min_next_f = succ_node.f_
+                    continue
                 self.open_list_.push(succ_node)
                 self.nodes_generated_+=1
 
@@ -60,7 +72,7 @@ class tree_search(base_search):
         # return failure instead of a solution
         self.runtime_ = time.process_time() - self.start_time
         self.status_ = "Failed"
-        return None
+        return None, min_next_g, min_next_f
 
 
 
