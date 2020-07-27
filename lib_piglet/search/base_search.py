@@ -23,6 +23,7 @@ class base_search:
     goal_ = None
     status_ = None
     heuristic_function_ = None
+    heuristic_weight = 1.0
 
     def __init__(self, open_list, expander:base_expander, heuristic_function = None, time_limit: int = sys.maxsize):
         self.open_list_ = open_list
@@ -62,7 +63,7 @@ class base_search:
             retval.h_ = 0
             retval.f_ = retval.g_
         else:
-            retval.h_ = self.heuristic_function_(retval.state_, self.goal_)
+            retval.h_ = self.heuristic_function_(retval.state_, self.goal_) * self.heuristic_weight
             retval.f_ = retval.g_ + retval.h_
         return retval
 

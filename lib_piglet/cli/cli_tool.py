@@ -6,6 +6,7 @@
 
 import sys, argparse, os
 from enum import IntEnum
+from lib_piglet.utils.tools import eprint
 
 
 # Describe parameters in arg parser result. For IDE convenient.
@@ -17,12 +18,15 @@ class args_interface:
     output_file: str
     scenario: str
     depth_limit:int
+    cost_limit:int
+    heuristic_weight:float
 
 
 # Describe domain type enum
 class DOMAIN_TYPE(IntEnum):
     gridmap = 0
     n_puzzle = 1
+    graph = 2
 
 
 # Describe task class.
@@ -45,7 +49,8 @@ strategy_choice = ["breath",
                    "greedy-best"
                     ]
 domain_types = ["grid4",
-                 "n-puzzle"
+                 "n-puzzle",
+                "graph"
                  ]
 
 statistic_template = "{0:15}| {1:10}| {2:10}| {3:10}| {4:10}| {5:10}| {6:10}| {7:10}| {8:10}| {9:10}| {10:20}| {11:20}"
@@ -128,6 +133,13 @@ def parse_args():
     parser.add_argument("-t", '--time-limit', type=int, default=sys.maxsize,
                         help='Specify the time-limit for the search. (seconds)', metavar=30)
 
+    parser.add_argument('--depth-limit', type=int, default=sys.maxsize,
+                        help='Specify the depth-limit for tree search.', metavar=1000)
+    parser.add_argument('--cost-limit', type=int, default=sys.maxsize,
+                        help='Specify the cost-limit for tree search.', metavar=1000)
+    parser.add_argument('--heuristic-weight', type=float, default=1,
+                        help='Set a heuristic weight for suboptimal a-star.', metavar=1.0)
+
     parser.add_argument("-o", "--output-file", type=str, default=None,
                         help="Output results to a file")
 
@@ -137,11 +149,16 @@ def parse_args():
 
     args , unknown = parser.parse_known_args()
     args:args_interface = args
-    args.depth_limit = None
     if args.framework == "iterative":
         if args.strategy != "a-star" and args.strategy != "depth":
             print("err; With iterative-deepening search, the strategy can only be depth or a-star ", file = sys.stderr)
             exit(1)
+
+    if (args.depth_limit != sys.maxsize or args.cost_limit!=sys.maxsize) and args.framework != "tree":
+        eprint("warning; depth limit or cost limit only works with tree search")
+
+    if args.heuristic_weight != 1.0 and args.strategy != "a-star":
+        eprint("warning; heuristic weight only works with a-star strategy for suboptimal a-star")
 
     return args
 
@@ -170,11 +187,37 @@ def parse_problem(problem: list,domain_type:int):
         except:
             print("err; Cannot convert {} {} {} {} to coordinates".format(*problem[4:8]),file=sys.stderr)
             exit(1)
+    elif domain_type == DOMAIN_TYPE.graph:
+        ta.domain = problem[0]
+        if len(problem) < 4:
+            print("err; the length of an entry of graph problem should be 4. Check the sample graph scenario format",file=sys.stderr)
+            exit(1)
+        try:
+            ta.start_state = int(problem[1])
+            ta.goal_state = int(problem[2])
+        except:
+            print("err; Cannot convert {} {} to coordinates".format(*problem[1:3]),file=sys.stderr)
+            exit(1)
     else:
         print("err; Unknown domain type", file=sys.stderr)
         exit(1)
     return ta
 
+def parse_scen_header(content):
+    if len(content) != 2 or content[0] != "domain" or content[1] not in domain_types:
+        print("err; The first line of input source must be domain type. eg. domain octile", file=sys.stderr)
+        print("Supported domains are: [{}]".format(",".join(domain_types)), file=sys.stderr)
+        exit(1)
+    if content[1] == "n-puzzle":
+        domain_type = DOMAIN_TYPE.n_puzzle
+    elif content[1] == "grid4":
+        domain_type = DOMAIN_TYPE.gridmap
+    elif content[1] == "graph":
+        domain_type = DOMAIN_TYPE.graph
+    else:
+        print("err; Unknown domain type: {}".format(content[1]), file=sys.stderr)
+        exit(1)
+    return domain_type
 
 
 

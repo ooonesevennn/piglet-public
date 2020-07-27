@@ -10,6 +10,8 @@ def main():
         exit(1)
 
     header_readed = False
+
+    # detect which source to accept scenario data
     if not sys.stdin.isatty():
         source = sys.stdin
     else:
@@ -26,20 +28,11 @@ def main():
     domain_type = None
     for line in source:
         content = line.strip().split()
-        if len(content) == 0 or content[0] == "#":
+        if len(content) == 0 or content[0] == "#" or content[0] == "c":
             continue
+
         if not header_readed:
-            if len(content) != 2 or content[0]!= "domain" or content[1] not in domain_types:
-                print("err; The first line of input source must be domain type. eg. domain octile", file = sys.stderr)
-                print("Supported domains are: [{}]".format(",".join(domain_types)), file = sys.stderr)
-                exit(1)
-            if content[1] == "n-puzzle":
-                domain_type = DOMAIN_TYPE.n_puzzle
-            elif content[1] == "grid4":
-                domain_type = DOMAIN_TYPE.gridmap
-            else:
-                print("err; Unknown domain type: {}".format(content[1]),file=sys.stderr)
-                exit(1)
+            domain_type = parse_scen_header(content)
             header_readed = True
             continue
 

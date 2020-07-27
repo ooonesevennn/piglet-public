@@ -38,9 +38,10 @@ class iterative_deepening(base_search):
         start_node = self.generate(start_state, None, None)
 
         cost_threshold = start_node.f_
-        depth_threshold = start_node.g_
+        depth_threshold = start_node.depth_
         # Keep search until reach timelimit.
         while self.runtime_ < self.time_limit_:
+            print(cost_threshold)
             # Set time limit to DLS
             self.tree_search_engine.time_limit_ = self.time_limit_ - self.runtime_
 
@@ -51,6 +52,8 @@ class iterative_deepening(base_search):
                 solution = self.tree_search_engine.get_path(self.start_, self.goal_, depth_limit=depth_threshold)
             next_depth = solution[1]
             next_cost = solution[2]
+
+
 
             # Update statistic info
             self.nodes_generated_ += self.tree_search_engine.nodes_generated_
@@ -67,6 +70,7 @@ class iterative_deepening(base_search):
                 cost_threshold = next_cost
             else:
                 self.solution_ = solution[0]
+                self.status_ = "Success"
                 return self.solution_
 
         # OPEN list is exhausted and we did not find the goal
