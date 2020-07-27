@@ -1,7 +1,10 @@
 # gridmap
 # 
 # Reads and writes 2d grid maps.
-#
+#  -----> y
+# |
+# |
+# V x
 # For gridmap, state is pair of (x,y) tuple
 # @author: dharabor
 # @created: 2020-07-14
@@ -33,8 +36,7 @@ class gridmap:
         if(self.__parse_header(map_fo) == -1):
             raise Exception("err; invalid map header")
 
-        for x in range(int(self.width_)):
-            self.map_ = [ [False] * int(self.height_) for x in range(int(self.width_)) ]
+        self.map_ = [ [False] * int(self.width_) for x in range(int(self.height_)) ]
 
         i = 0
         while(True):
@@ -44,8 +46,8 @@ class gridmap:
             if(char == '\n'):
                 continue
 
-            y = int(i / int(self.width_))
-            x = int(i % int(self.width_))
+            y = int(i % int(self.width_))
+            x = int(i / int(self.width_))
             if(char == '.'):
                 self.map_[x][y] = True
             else:
@@ -60,8 +62,8 @@ class gridmap:
         print("width " + str(self.width_))
         print("map")
  
-        for y in range(0, int(self.height_)):
-            for x in range(0, int(self.width_)):
+        for y in range(0, int(self.width_)):
+            for x in range(0, int(self.height_)):
                 if(self.map_[x][y] == True):
                     print('.', end="")
                 else:

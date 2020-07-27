@@ -41,7 +41,6 @@ class iterative_deepening(base_search):
         depth_threshold = start_node.depth_
         # Keep search until reach timelimit.
         while self.runtime_ < self.time_limit_:
-            print(cost_threshold)
             # Set time limit to DLS
             self.tree_search_engine.time_limit_ = self.time_limit_ - self.runtime_
 

@@ -56,7 +56,7 @@ class grid_expander(base_expander):
         y = loc[1]
         retval = []
 
-        if (x < 0 or x >= int(self.domain_.width_) or y < 0 or y >= int(self.domain_.height_)):
+        if (x < 0 or x >= int(self.domain_.height_) or y < 0 or y >= int(self.domain_.width_)):
             return retval
 
         if (self.domain_.map_[x][y] == False):
@@ -64,22 +64,22 @@ class grid_expander(base_expander):
 
         if (int(y - 1) >= 0 and self.domain_.map_[x][y - 1]):
             retval.append(grid_action())
-            retval[-1].move_ = Move_Actions.MOVE_UP
+            retval[-1].move_ = Move_Actions.MOVE_LEFT
             retval[-1].cost_ = 1;
 
         if (int(y + 1) < int(self.domain_.height_) and self.domain_.map_[x][y + 1]):
             retval.append(grid_action())
-            retval[-1].move_ = Move_Actions.MOVE_DOWN
+            retval[-1].move_ = Move_Actions.MOVE_RIGHT
             retval[-1].cost_ = 1;
 
         if ((int(x) - 1) >= 0 and self.domain_.map_[x - 1][y]):
             retval.append(grid_action())
-            retval[-1].move_ = Move_Actions.MOVE_LEFT
+            retval[-1].move_ = Move_Actions.MOVE_UP
             retval[-1].cost_ = 1;
 
         if ((int(x) + 1) < int(self.domain_.width_) and self.domain_.map_[x + 1][y]):
             retval.append(grid_action())
-            retval[-1].move_ = Move_Actions.MOVE_RIGHT
+            retval[-1].move_ = Move_Actions.MOVE_DOWN
             retval[-1].cost_ = 1;
 
         return retval
@@ -88,13 +88,13 @@ class grid_expander(base_expander):
         x = curr_state[0]
         y = curr_state[1]
         if move == Move_Actions.MOVE_UP:
-            y += 1
-        elif move == Move_Actions.MOVE_DOWN:
-            y -= 1
-        elif move == Move_Actions.MOVE_LEFT:
             x -= 1
-        elif move == Move_Actions.MOVE_RIGHT:
+        elif move == Move_Actions.MOVE_DOWN:
             x += 1
+        elif move == Move_Actions.MOVE_LEFT:
+            y -= 1
+        elif move == Move_Actions.MOVE_RIGHT:
+            y += 1
         return x, y
 
     def __str__(self):
