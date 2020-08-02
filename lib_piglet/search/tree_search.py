@@ -46,7 +46,7 @@ class tree_search(base_search):
                     self.status_ = "Time out"
                     return None,min_next_d,min_next_f
 
-            # goal test. if successful, return the solution
+            # goal example. if successful, return the solution
             if(current.state_ == goal_state):
                 self.solution_ = self.solution(current)
                 self.status_ = "Success"

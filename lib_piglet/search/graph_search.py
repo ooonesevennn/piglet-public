@@ -44,7 +44,7 @@ class graph_search(base_search):
                 if self.runtime_ > self.time_limit_:
                     self.status_ = "Time out"
                     return None
-            # goal test. if successful, return the solution
+            # goal example. if successful, return the solution
             if(current.state_ == goal_state):
                 self.solution_ = self.solution(current)
                 self.status_ = "Success"

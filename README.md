@@ -40,7 +40,7 @@ from lib_piglet.expanders.grid_expander import grid_expander
 from lib_piglet.search.tree_search import tree_search
 from lib_piglet.utils.data_structure import bin_heap,stack,queue
 
-mapfile = "./test/gridmap/empty-16-16.map"
+mapfile = "./example/gridmap/empty-16-16.map"
 
 # create an instance of gridmap domain
 gm = gridmap.gridmap()
