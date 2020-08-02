@@ -53,7 +53,7 @@ domain_types = ["grid4",
                 "graph"
                  ]
 
-statistic_template = "{0:15}| {1:10}| {2:10}| {3:10}| {4:10}| {5:10}| {6:10}| {7:10}| {8:10}| {9:10}| {10:20}| {11:20}"
+statistic_template = "{0:10}| {1:10}| {2:10}| {3:10}| {4:10}| {5:10}| {6:10}| {7:10}| {8:10}| {9:10}| {10:20}| {11:20}"
 csv_template = '"{0}","{1}","{2}","{3}","{4}","{5}","{6}","{7}","{8}","{9}","{10}","{11}"\n'
 
 
@@ -127,7 +127,7 @@ def parse_args():
     parser.add_argument("-s", '--strategy', type=str, default=["uniform"],
                         choices=strategy_choice,
                         help='Specify the search strategy you want to use.\
-                          Supported strategies are: [{}]. If using strategy "depth" and framework "iterative-depth",\
+                          Supported strategies are: [{}]. If using strategy "depth" and framework "iterative",\
                            a maximum depth limit also need to be specified after "depth".'.format(", ".join(strategy_choice)), metavar="uniform")
 
     parser.add_argument("-t", '--time-limit', type=int, default=sys.maxsize,

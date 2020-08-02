@@ -64,7 +64,7 @@ class n_puzzle:
     def __init__(self, width: int):
         self.width_ = width
         self.size_ = width*width
-        goal_list = list(range(1, self.width_*self.width_)) + ["x"]
+        goal_list = ["x"] + list(range(1, self.width_*self.width_))
         self.goal_ = puzzle_state(goal_list, self.width_-1, -2)
         self.domain_file_ = width
 
@@ -86,10 +86,12 @@ class n_puzzle:
                 except:
                     print("err; unknown element type for: {item}".format(item), file=sys.stderr)
                     exit(1)
-
+            if num == 0:
+                num = "x"
             if num!="x" and (num <= 0 or num >= self.size_):
                 print("err; Number {} not in range 1~{}".format(num, self.size_ - 1), file=sys.stderr)
                 exit(1)
+
 
             if num in puzzle_list:
                 print("You can't have two {} in one puzzle".format(num), file = sys.stderr)
@@ -97,9 +99,9 @@ class n_puzzle:
             puzzle_list.append(num)
 
         self.start_ = puzzle_state(puzzle_list,puzzle_list.index("x"))
-        if not self.is_solvable():
-            print("The given puzzle {} is not solvable!".format(puzzle_list),file = sys.stderr)
-            exit(1)
+        # if not self.is_solvable():
+        #     print("The given puzzle {} is not solvable!".format(puzzle_list),file = sys.stderr)
+        #     exit(1)
 
 
 
@@ -133,9 +135,12 @@ class n_puzzle:
             for char in line:
                 if char.isnumeric():
                     num = int(char)
-                    if num <= 0 or num >= self.size_:
+                    if num < 0 or num >= self.size_:
                         raise Exception("Number {} not in range 1~{}".format(num, self.size_ - 1))
                 else:
+                    num = "x"
+
+                if num == 0:
                     num = "x"
 
                 if num in puzzle_list:
