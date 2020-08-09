@@ -42,7 +42,7 @@ framework_choice = ["tree",
                     "iterative"
                     ]
 
-strategy_choice = ["breath",
+strategy_choice = ["breadth",
                    "depth",
                    "uniform",
                    "a-star",
@@ -112,7 +112,7 @@ def parse_args():
      This is piglet commandline interface. You can use piglet-cli run a variety search algorithms. 
      A problem scenario file must be provided with -p, unless you problems are passed in through stdin.
      The framework is graph search on default. You can switch to tree search by -f tree.
-     The strategy is uniform-cost search by default. You can switch to breath first, depth first or A-star by -s.
+     The strategy is uniform-cost search by default. You can switch to breadth first, depth first or A-star by -s.
      """)
 
     parser.add_argument("-p","--problem", type=str, default=None,

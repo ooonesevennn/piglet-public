@@ -67,7 +67,7 @@ def run_task(t: task, args: args_interface):
         strategy = args.strategy
         if strategy == "depth":
             open_list = stack()
-        elif strategy == "breath":
+        elif strategy == "breadth":
             open_list = queue()
         elif strategy == "uniform":
             open_list = bin_heap(search_node.compare_node_g)

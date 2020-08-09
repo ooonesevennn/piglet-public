@@ -23,7 +23,7 @@ $ piglet.py --help
 
 run a scenario:
 ```
-$ python3 piglet.py -p ./test/example_grid_scenario.scen  
+$ python3 piglet.py -p ./example/example_n_puzzle_scenario.scen -f graph -s uniform  
 ```
 
 ### Piglet Library
@@ -43,9 +43,7 @@ from lib_piglet.utils.data_structure import bin_heap,stack,queue
 mapfile = "./example/gridmap/empty-16-16.map"
 
 # create an instance of gridmap domain
-gm = gridmap.gridmap()
-# load map from file
-gm.load(mapfile)
+gm = gridmap.gridmap(mapfile)
 
 # create an instance of grid_expander and pass the girdmap instance to the expander.
 expander = grid_expander(gm)
@@ -56,10 +54,6 @@ search = tree_search(bin_heap(), expander)
 
 # start search by proving a start state and goal state. For gridmap a state is a (x,y) tuple 
 solution = search.get_path((1,2),(10,2))
-
-# print search statistics.
-search.print_header()
-search.print_statistic()
 
 # print solution
 print(solution)
