@@ -46,7 +46,7 @@ def run_task(t: task, args: args_interface):
             start = t.start_state
             goal  = t.goal_state
             expander = grid_expander.grid_expander(domain)
-            heuristic = gridmap_h.manhattan_heuristic
+            heuristic = gridmap_h.pigelet_heuristic
 
         elif t.domain_type == DOMAIN_TYPE.n_puzzle:
             domain = n_puzzle.n_puzzle(t.domain)
@@ -54,15 +54,15 @@ def run_task(t: task, args: args_interface):
             start = domain.start_state()
             goal = domain.goal_state()
             expander = n_puzzle_expander.n_puzzle_expander(domain)
-            heuristic = n_puzzle_h.sum_manhattan_heuristic
+            heuristic = n_puzzle_h.pigelet_heuristic
         elif t.domain_type == DOMAIN_TYPE.graph:
             domain = graph.graph(t.domain)
             expander = graph_expander.graph_expander(domain)
-            heuristic = graph_h.straight_heuristic
+            heuristic = graph_h.pigelet_heuristic
             start = domain.get_vertex(t.start_state)
             goal = domain.get_vertex(t.goal_state)
 
-        # prepare open list for different stragety
+        # prepare open list and heuristic_function for different strategy
         heuristic_function = None
         strategy = args.strategy
         if strategy == "depth":

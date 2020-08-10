@@ -9,7 +9,7 @@
 
 from lib_piglet.utils.tools import eprint
 
-import os
+import os,sys
 
 class vertex:
     id:int
@@ -72,6 +72,8 @@ class graph:
             eprint("err; file {} not exist".format(filename))
             exit(1)
         self.domain_file_=filename
+        print("Loading graph file ... ...")
+
         f = open(filename)
 
         for line in f:
@@ -107,6 +109,8 @@ class graph:
                     exit(1)
 
                 self.add_edge(n1, n2, cost)
+        sys.stdout.write("\033[F")
+
 
     def add_vertex(self, id:int, coordinates:tuple):
         self.num_vertices = self.num_vertices + 1

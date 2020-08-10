@@ -8,6 +8,9 @@
 
 import math
 
+def pigelet_heuristic(current_state, goal_state):
+    return manhattan_heuristic(current_state, goal_state)
+
 def manhattan_heuristic(current_state, goal_state):
     return abs(current_state[0] - goal_state[0]) + abs(current_state[1] - goal_state[1])
 

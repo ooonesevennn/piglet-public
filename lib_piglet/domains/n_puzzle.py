@@ -39,6 +39,10 @@ class puzzle_state:
         self.x_index_ = x_index
 
     def __eq__(self, other):
+        if type(other) == str:
+            return str(self.state_list_) == other
+        if type(other) == list:
+            return self.state_list_ == other
         return self.state_list_ == other.state_list_
 
     def __str__(self):
@@ -59,8 +63,8 @@ class n_puzzle:
     swap_offset: list
     domain_file_ = "Unknown"
 
-    # Load a problem from a file
-    # @param filename The path to a puzzle file
+    # Initialize a problem
+    # @param width The width of the puzzle
     def __init__(self, width: int):
         self.width_ = width
         self.size_ = width*width
