@@ -13,15 +13,20 @@ from lib_piglet.search.search_node import search_node
 from lib_piglet.expanders.base_expander import base_expander
 from lib_piglet.domains.gridmap import gridmap
 from lib_piglet.domains.grid_action import  Move_Actions, grid_action
+from lib_piglet.constraints.grid_constraints import grid_constraint_table, grid_reservation_table
 
 class grid_expander(base_expander):
     domain_: gridmap
     effects_: list
     succ_: list
     nodes_: list
-    def __init__(self, map : gridmap):
+    constraint_table_: grid_constraint_table  = None
+    reservation_table_: grid_reservation_table = None # reservation_table_ is not used on default, decide how to use it on your own.
+
+    def __init__(self, map : gridmap, constraint_table: grid_constraint_table = None):
         self.domain_ = map
         self.effects_ = [self.domain_.height_*-1, self.domain_.height_, -1, 1]
+        self.constraint_table_ = constraint_table
 
         # memory for storing successor (state, action) pairs
         self.succ_ = [None] * 4 
@@ -43,6 +48,11 @@ class grid_expander(base_expander):
             # The search will initialise the rest, assuming it decides 
             # to add the corresponding successor to OPEN
             new_state = self.__move(current.state_, a.move_)
+            if self.constraint_table_ is not None:
+                if self.constraint_table_.get_constraint(new_state,current.timestep_+1).v_:
+                    continue
+                if self.constraint_table_.get_constraint(current.state_,current.timestep_).e_[a.move_]:
+                    continue
             self.succ_.append((new_state, a))
         return self.succ_[:]
 

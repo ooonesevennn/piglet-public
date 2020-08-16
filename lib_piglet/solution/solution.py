@@ -5,7 +5,7 @@
 # @created: 2020-07-16
 #
 
-
+# Store solution of a search. paths_ attribute include a list of search_node.
 class solution:
     cost_: int
     depth_: int
@@ -26,3 +26,11 @@ class solution:
 
     def __repr__(self):
         return self.__str__()
+
+# Convert solution to a list of state
+def solution_to_state_list(sol: solution):
+    path = solution.paths_[:]
+    for i in range(0,len(path)):
+        path = path[i].state_
+    return path
+

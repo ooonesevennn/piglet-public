@@ -53,11 +53,13 @@ class base_search:
             # NB: we usually do this only for the start node
             retval.g_ = 0
             retval.depth_ = 0
+            retval.timestep_ = 0
         else:
             # initialise the node based on its parent
             retval.g_ = parent.g_ + action.cost_
             retval.depth_ = parent.depth_ + 1
             retval.parent_ = parent
+            retval.timestep_= parent.timestep_ + 1
 
         if self.heuristic_function_ is None:
             retval.h_ = 0

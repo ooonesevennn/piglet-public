@@ -18,6 +18,7 @@ class search_node:
     instance_ = None
     h_ = 0
     f_ = 0
+    timestep_ = 0
     closed_ = False
     open_handle_ = None
 
