@@ -36,7 +36,7 @@ class gridmap:
         if(self.__parse_header(map_fo) == -1):
             raise Exception("err; invalid map header")
 
-        self.map_ = [ [False] * int(self.width_) for x in range(int(self.height_)) ]
+        self.map_ = [ ([None] * int(self.width_)) for x in range(0,int(self.height_)) ]
 
         i = 0
         while(True):
@@ -62,8 +62,8 @@ class gridmap:
         print("width " + str(self.width_))
         print("map")
  
-        for y in range(0, int(self.width_)):
-            for x in range(0, int(self.height_)):
+        for x in range(0, int(self.height_)):
+            for y in range(0, int(self.width_)):
                 if(self.map_[x][y] == True):
                     print('.', end="")
                 else:
@@ -75,8 +75,8 @@ class gridmap:
     def get_tile(self, loc: tuple):
         x = loc[0]
         y = loc[1]
-        if(x < 0 or x >= self.width_ or y < 0 or y >= self.height_):
-            return False;
+        if(x < 0 or x >= self.height_ or y < 0 or y >= self.width_):
+            return False
         return self.map_[x][y]
 
     def __parse_header(self, map_fo):

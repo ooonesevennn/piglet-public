@@ -182,8 +182,8 @@ def parse_problem(problem: list,domain_type:int):
             print("err; the length of an entry of grid problem should be 9. Check the sample grid scenario format",file=sys.stderr)
             exit(1)
         try:
-            ta.start_state = (int(problem[4]), int(problem[5]))
-            ta.goal_state = (int(problem[6]), int(problem[7]))
+            ta.start_state = (int(problem[5]), int(problem[4]))
+            ta.goal_state = (int(problem[7]), int(problem[6]))
         except:
             print("err; Cannot convert {} {} {} {} to coordinates".format(*problem[4:8]),file=sys.stderr)
             exit(1)

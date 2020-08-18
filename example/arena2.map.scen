@@ -1,10 +1,10 @@
 domain grid4
+0	./example/gridmap/arena2.map	281	209	256	124	258	125	2.41421356
 0	./example/gridmap/arena2.map	281	209	99	159	101	162	3.82842712
 0	./example/gridmap/arena2.map	281	209	112	130	109	131	3.41421356
 0	./example/gridmap/arena2.map	281	209	101	94	103	93	2.41421356
 0	./example/gridmap/arena2.map	281	209	111	58	110	60	2.41421356
 0	./example/gridmap/arena2.map	281	209	93	83	95	80	3.82842712
-0	./example/gridmap/arena2.map	281	209	256	124	258	125	2.41421356
 0	./example/gridmap/arena2.map	281	209	262	48	259	46	3.82842712
 0	./example/gridmap/arena2.map	281	209	270	39	268	40	2.41421356
 0	./example/gridmap/arena2.map	281	209	237	101	237	102	1.00000000

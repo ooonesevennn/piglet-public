@@ -69,25 +69,25 @@ class grid_expander(base_expander):
         if (x < 0 or x >= int(self.domain_.height_) or y < 0 or y >= int(self.domain_.width_)):
             return retval
 
-        if (self.domain_.map_[x][y] == False):
+        if (self.domain_.get_tile(loc) == False):
             return retval
 
-        if (int(y - 1) >= 0 and self.domain_.map_[x][y - 1]):
+        if (self.domain_.get_tile((x,y - 1))):
             retval.append(grid_action())
             retval[-1].move_ = Move_Actions.MOVE_LEFT
             retval[-1].cost_ = 1;
 
-        if (int(y + 1) < int(self.domain_.height_) and self.domain_.map_[x][y + 1]):
+        if (self.domain_.get_tile((x,y + 1))):
             retval.append(grid_action())
             retval[-1].move_ = Move_Actions.MOVE_RIGHT
             retval[-1].cost_ = 1;
 
-        if ((int(x) - 1) >= 0 and self.domain_.map_[x - 1][y]):
+        if (self.domain_.get_tile((x - 1,y))):
             retval.append(grid_action())
             retval[-1].move_ = Move_Actions.MOVE_UP
             retval[-1].cost_ = 1;
 
-        if ((int(x) + 1) < int(self.domain_.width_) and self.domain_.map_[x + 1][y]):
+        if (self.domain_.get_tile((x + 1,y))):
             retval.append(grid_action())
             retval[-1].move_ = Move_Actions.MOVE_DOWN
             retval[-1].cost_ = 1;
