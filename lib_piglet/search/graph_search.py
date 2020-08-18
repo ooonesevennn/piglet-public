@@ -32,11 +32,6 @@ class graph_search(base_search):
         start_node = self.generate(start_state, None, None)
         self.open_list_.push(start_node)
         self.all_nodes_list_[start_node] = start_node
-        print(self.expander_.domain_.get_tile(start_state))
-        print(self.expander_.domain_.get_tile(goal_state))
-
-        print("start:",start_state)
-        print("goal:",goal_state)
 
         # continue while there are still nods on OPEN
         while (len(self.open_list_) > 0):
