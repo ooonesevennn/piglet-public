@@ -130,8 +130,8 @@ def parse_args():
                           Supported strategies are: [{}]. If using strategy "depth" and framework "iterative",\
                            a maximum depth limit also need to be specified after "depth".'.format(", ".join(strategy_choice)), metavar="uniform")
 
-    parser.add_argument("-t", '--time-limit', type=int, default=sys.maxsize,
-                        help='Specify the time-limit for the search. (seconds)', metavar=30)
+    parser.add_argument("-t", '--time-limit', type=int, default=30,
+                        help='Specify the time-limit for the search. (seconds) The default setting is 30 second.', metavar=30)
 
     parser.add_argument('--depth-limit', type=int, default=sys.maxsize,
                         help='Specify the depth-limit for tree search.', metavar=1000)
