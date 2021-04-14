@@ -12,6 +12,8 @@ from lib_piglet.search import tree_search, graph_search,base_search,search_node,
 from lib_piglet.utils.data_structure import queue,stack,bin_heap
 from lib_piglet.heuristics import gridmap_h,n_puzzle_h,graph_h
 
+import sys
+
 search_engine: base_search.base_search = None
 expander: base_expander.base_expander = None
 domain = None
@@ -61,6 +63,89 @@ def run_task(t: task, args: args_interface):
             heuristic = graph_h.pigelet_heuristic
             start = domain.get_vertex(t.start_state)
             goal = domain.get_vertex(t.goal_state)
+
+        # prepare open list and heuristic_function for different strategy
+        heuristic_function = None
+        strategy = args.strategy
+        if strategy == "depth":
+            open_list = stack()
+        elif strategy == "breadth":
+            open_list = queue()
+        elif strategy == "uniform":
+            open_list = bin_heap(search_node.compare_node_g)
+        elif strategy =="a-star":
+            open_list =  bin_heap(search_node.compare_node_f)
+            heuristic_function = heuristic
+        elif strategy == "greedy-best":
+            open_list =  bin_heap(search_node.compare_node_h)
+            heuristic_function = heuristic
+
+        # prepare search engine for different framework
+        engine: base_search.base_search = None
+        if args.framework == "tree":
+            engine = tree_search.tree_search
+        elif args.framework == "graph":
+            engine = graph_search.graph_search
+        elif args.framework == "iterative" :
+            engine = iterative_deepening.iterative_deepening
+            open_list = stack()
+        search_engine = engine(open_list,expander,heuristic_function = heuristic_function,time_limit=args.time_limit)
+
+    search_engine.heuristic_weight = args.heuristic_weight
+
+    if args.framework == "iterative":
+        if args.strategy == "depth":
+            search_engine.get_path(start,goal,threshold_type=iterative_deepening.ID_threshold.depth)
+        elif args.strategy == "a-star":
+            search_engine.get_path(start,goal,threshold_type=iterative_deepening.ID_threshold.cost)
+    elif args.framework == "tree":
+        search_engine.get_path(start,goal,depth_limit=args.depth_limit,cost_limit=args.cost_limit)
+    else:
+        search_engine.get_path(start, goal)
+    return search_engine
+
+# run task with cli arguments
+# @param t A task object describe the task domain, start and goal
+# @param args Arguments object from cli interface
+# @return search A search engine with search result
+def run_multi_tasks(domain_type,tasks: list, args: args_interface):
+    global search_engine, expander, domain
+    same_problem = False
+
+    # if serach engine exist and domain file doesn't change, just update start and goal
+    if search_engine is not None:
+        if domain_type == DOMAIN_TYPE.gridmap:
+            start_list = []
+            goal_list = []
+            for t in tasks:
+                start_list.append(t.start_state)
+                goal_list.append(t.goal_state)
+
+            start = gridmap.grid_joint_state(start_list)
+            goal = gridmap.grid_joint_state(goal_list, is_goal=True)
+            domain.start_ = start
+            domain.goal_ = goal
+        else:
+            print("err; Given domain does not support multi-agent search {}".format(args.problem), file = sys.stderr)
+
+    # if no search engine or domain file change, reload domain.
+    else:
+        if domain_type == DOMAIN_TYPE.gridmap:
+            domain_file = tasks[0].domain
+            start_list = []
+            goal_list = []
+            for t in tasks:
+                start_list.append(t.start_state)
+                goal_list.append(t.goal_state)
+
+            start = gridmap.grid_joint_state(start_list)
+            goal  = gridmap.grid_joint_state(goal_list,is_goal=True)
+
+            domain = gridmap.gridmap_joint(domain_file,start,goal)
+            expander = grid_expander.grid_joint_expander(domain)
+            heuristic = gridmap_h.pigelet_multi_agent_heuristic
+        else:
+            print("err; Given domain does not support multi-agent search {}".format(args.problem), file = sys.stderr)
 
         # prepare open list and heuristic_function for different strategy
         heuristic_function = None

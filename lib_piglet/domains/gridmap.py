@@ -12,6 +12,49 @@
 
 import sys, math
 
+class grid_joint_state:
+    agent_locations_: dict
+    is_goal_: bool
+
+    def __init__(self, locations: list, is_goal =  False):
+        self.agent_locations_ = {}
+        for i in range(0,len(locations)):
+            self.agent_locations_[i] = locations[i]
+        self.is_goal_ = is_goal
+
+    def __eq__(self, other):
+        # When comparing with a goal state, as long as all locations for each agent in "a" are same as the location for
+        # the agent in "b", we return True. Regardless the length difference between 2 agents. This make sure the codes
+        # are compatible with well formed instances when checking if a state is goal.
+        #
+        # When comparing with a non goal state, we require two state have same length to return True.
+        a = self.agent_locations_
+        b = other.agent_locations_
+
+        if self.is_goal_:
+            a = other.agent_locations_
+            b = self.agent_locations_
+
+        if not self.is_goal_ and not other.is_goal_ and len(self.agent_locations_) != len(self.agent_locations_):
+            return False
+
+        for key,item in a.items():
+            if key not in b:
+                raise Exception("Agent {} not exist in both state.".format(key))
+
+            if b[key] != item:
+                return False
+        return True
+    
+    def __hash__(self):
+        return hash(str(self.agent_locations_))
+    
+    def __str__(self):
+        return str(self.agent_locations_).replace(" ","")
+    
+    def __repr__(self):
+        return str(self.agent_locations_).replace(" ","")
+
 
 class gridmap:
     map: list
@@ -26,6 +69,7 @@ class gridmap:
         self.width_ = int(0)
         self.map_size_ = int(0)
         self.load(filename)
+
 
     # Load map in the map instance
     # @param filename The path to map file.
@@ -102,3 +146,11 @@ class gridmap:
     def __str__(self):
         return self.domain_file_
 
+class gridmap_joint(gridmap):
+    start_: grid_joint_state
+    goal_: grid_joint_state
+
+    def __init__(self, filename: str, start:grid_joint_state , goal:grid_joint_state):
+        super(gridmap_joint,self).__init__(filename)
+        self.start_ = start
+        self.goal_ = goal

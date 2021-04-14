@@ -20,6 +20,9 @@ class args_interface:
     depth_limit:int
     cost_limit:int
     heuristic_weight:float
+    multi_agent: bool
+    problem_number: int
+
 
 
 # Describe domain type enum
@@ -145,6 +148,12 @@ def parse_args():
 
     parser.add_argument("--solution", default=False,action="store_true",
                         help="Print/write solution")
+
+    parser.add_argument("-m","--multi-agent", default=False, action="store_true",
+                        help="Search in incremental multi-agent mode for grid map")
+
+    parser.add_argument('-n',"--problem-number", type=int, default=sys.maxsize,
+                        help='Solve only top n problem from the scenario file', metavar=1000)
 
 
     args , unknown = parser.parse_known_args()

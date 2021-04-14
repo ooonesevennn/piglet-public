@@ -1,6 +1,7 @@
 from lib_piglet.cli.cli_tool import *
 from lib_piglet.cli.run_tool import *
 import os
+
 def main():
 
     args = parse_args()
@@ -26,7 +27,11 @@ def main():
         out.write(csv_header())
 
     domain_type = None
+    multi_tasks = []
+    problem_amount = 0
     for line in source:
+        if problem_amount >=  args.problem_number:
+            break
         content = line.strip().split()
         if len(content) == 0 or content[0] == "#" or content[0] == "c":
             continue
@@ -37,7 +42,13 @@ def main():
             continue
 
         task = parse_problem(content, domain_type)
-        search = run_task(task, args)
+
+        if args.multi_agent:
+            multi_tasks.append(task)
+            search = run_multi_tasks(domain_type,multi_tasks,args)
+        else:
+            search = run_task(task, args)
+        problem_amount += 1
         print(statistic_string(args,search))
         if args.output_file:
             out.write(statistic_csv(args,search))

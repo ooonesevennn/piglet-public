@@ -6,7 +6,7 @@
 # @created: 2020-07-15
 #
 
-import sys
+import sys, random
 from functools import total_ordering
 
 class search_node:
@@ -68,6 +68,8 @@ def compare_node_g(a: search_node, b:search_node):
 # Compare two node by f value
 # Return true if a >= b
 def compare_node_f(a: search_node, b:search_node):
+    if a.f_ == b.f_:
+        return random.randint(0,1) == 1
     return a.f_>=b.f_
 
 
