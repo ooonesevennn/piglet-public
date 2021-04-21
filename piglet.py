@@ -2,6 +2,8 @@ from lib_piglet.cli.cli_tool import *
 from lib_piglet.cli.run_tool import *
 import os
 
+
+
 def main():
 
     args = parse_args()
@@ -21,10 +23,10 @@ def main():
             exit(1)
         source = open(args.problem)
 
-    print_header()
+    print_header(args.anytime)
     if args.output_file:
         out = open(args.output_file, "w+")
-        out.write(csv_header())
+        out.write(csv_header(args.anytime))
 
     domain_type = None
     multi_tasks = []
@@ -49,9 +51,9 @@ def main():
         else:
             search = run_task(task, args)
         problem_amount += 1
-        print(statistic_string(args,search))
+        print(statistic_string(args,search,args.anytime))
         if args.output_file:
-            out.write(statistic_csv(args,search))
+            out.write(statistic_csv(args,search,args.anytime))
 
     if args.output_file:
         out.close()

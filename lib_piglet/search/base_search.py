@@ -65,8 +65,8 @@ class base_search:
             retval.h_ = 0
             retval.f_ = retval.g_
         else:
-            retval.h_ = self.heuristic_function_(retval.state_, self.goal_) * self.heuristic_weight
-            retval.f_ = retval.g_ + retval.h_
+            retval.h_ = self.heuristic_function_(retval.state_, self.goal_)
+            retval.f_ = retval.g_ + retval.h_ * self.heuristic_weight
         return retval
 
     # extract the computed solution by following backpointers

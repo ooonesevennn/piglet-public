@@ -93,6 +93,7 @@ class bin_heap:
         retval: heap_item = self.heapList[1]
         self.handle.pop(retval.handle_id_)
         self.heapList[1] = self.heapList[self.currentSize]
+        self.handle[self.heapList[1].handle_id_] = 1
         self.currentSize = self.currentSize - 1
         self.heapList.pop()
         self.__percDown(1)
@@ -137,6 +138,7 @@ class bin_heap:
         retval: heap_item = self.heapList[index]
         self.handle.pop(retval.handle_id_)
         self.heapList[index] = self.heapList[self.currentSize]
+        self.handle[self.heapList[index].handle_id_] = index
         self.currentSize = self.currentSize - 1
         self.heapList.pop()
         self.__percDown(index)
@@ -186,6 +188,7 @@ class bin_heap:
 
     def __percUp(self, i):
         while i // 2 > 0:
+            # print(i // 2, i, len(self.heapList),i in self.handle)
             if not self.compare_function(self.heapList[i].item_,self.heapList[i // 2].item_):
                 tmp = self.heapList[i // 2]
                 self.heapList[i // 2] = self.heapList[i]

@@ -22,6 +22,7 @@ class args_interface:
     heuristic_weight:float
     multi_agent: bool
     problem_number: int
+    anytime: bool
 
 
 
@@ -59,6 +60,8 @@ domain_types = ["grid4",
 statistic_template = "{0:10}| {1:10}| {2:10}| {3:10}| {4:10}| {5:10}| {6:10}| {7:10}| {8:10}| {9:10}| {10:20}| {11:20}"
 csv_template = '"{0}","{1}","{2}","{3}","{4}","{5}","{6}","{7}","{8}","{9}","{10}","{11}"\n'
 
+anytime_statistic_template = "{0:10}| {1:10}| {2:10}| {3:10}| {4:10}| {5:10}| {6:10}| {7:10}| {8:10}| {9:10}| {10:10}| {11:10}| {12:20}| {13:20}"
+anytime_csv_template = '"{0}","{1}","{2}","{3}","{4}","{5}","{6}","{7}","{8}","{9}","{10}","{11}","{12}","{13}"\n'
 
 
 statistic_header = [
@@ -76,36 +79,63 @@ statistic_header = [
     "Solution"
 ]
 
+anytime_statistic_header = [
+    "Framework",
+    "Strategy",
+    "Status",
+    "Cost",
+    "Depth",
+    "Nodes(exp)",
+    "Nodes(gen)",
+    "Re-Exp",
+    "1st Sol T",
+    "Runtime",
+    "start",
+    "goal",
+    "Problem",
+    "Solution"
+]
+
 
 # Print statistic header to screen
-def print_header():
-    print(statistic_template.format(*statistic_header))
+def print_header(anytime):
+    if anytime:
+        print(anytime_statistic_template.format(*anytime_statistic_header))
+    else:
+        print(statistic_template.format(*statistic_header))
 
 
 # @return str Statistic header in csv format
-def csv_header():
+def csv_header(anytime):
+    if anytime:
+        return anytime_csv_template.format(*anytime_statistic_header)
     return csv_template.format(*statistic_header)
 
 
 # statistic to string
 # @return str A string of statistic information
-def statistic_string(args,search):
+def statistic_string(args,search, anytime):
+    template = statistic_template
+    if anytime:
+        template = anytime_statistic_template
     if args.solution:
-        return statistic_template.format(str(args.framework), args.strategy,
+        return template.format(str(args.framework), args.strategy,
                                          *[str(x) for x in search.get_statistic()],
                                          str(search.solution_))
-    return statistic_template.format(str(args.framework), args.strategy,
+    return template.format(str(args.framework), args.strategy,
                                      *[str(x) for x in search.get_statistic()],"Hidden")
-
 
 # statistic to csv
 # @return str A csv format string of statistic information
-def statistic_csv(args,search):
+def statistic_csv(args,search, anytime):
+    template = csv_template
+    if anytime:
+        template = anytime_csv_template
     if args.solution:
-        return csv_template.format(str(args.framework), args.strategy,
+        return template.format(str(args.framework), args.strategy,
                                          *[str(x) for x in search.get_statistic()],
                                          search.solution_)
-    return csv_template.format(str(args.framework), args.strategy,
+    return template.format(str(args.framework), args.strategy,
                                      *[str(x) for x in search.get_statistic()], "Hidden")
 
 # Parse arguments from cli interface
@@ -133,7 +163,7 @@ def parse_args():
                           Supported strategies are: [{}]. If using strategy "depth" and framework "iterative",\
                            a maximum depth limit also need to be specified after "depth".'.format(", ".join(strategy_choice)), metavar="uniform")
 
-    parser.add_argument("-t", '--time-limit', type=int, default=30,
+    parser.add_argument("-t", '--time-limit', type=float, default=30,
                         help='Specify the time-limit for the search. (seconds) The default setting is 30 second.', metavar=30)
 
     parser.add_argument('--depth-limit', type=int, default=sys.maxsize,
@@ -152,6 +182,9 @@ def parse_args():
     parser.add_argument("-m","--multi-agent", default=False, action="store_true",
                         help="Search in incremental multi-agent mode for grid map")
 
+    parser.add_argument("-a","--anytime", default=False, action="store_true",
+                        help="Search in Anytime Weighted A* mode when having graph as framework and a-star as stragety")
+
     parser.add_argument('-n',"--problem-number", type=int, default=sys.maxsize,
                         help='Solve only top n problem from the scenario file', metavar=1000)
 
@@ -162,6 +195,9 @@ def parse_args():
         if args.strategy != "a-star" and args.strategy != "depth":
             print("err; With iterative-deepening search, the strategy can only be depth or a-star ", file = sys.stderr)
             exit(1)
+    if args.anytime and args.strategy != "a-star":
+        print("err; anytime search only works with graph framework and a-start stragety", file = sys.stderr)
+        exit(1)
 
     if (args.depth_limit != sys.maxsize or args.cost_limit!=sys.maxsize) and args.framework != "tree":
         eprint("warning; depth limit or cost limit only works with tree search")

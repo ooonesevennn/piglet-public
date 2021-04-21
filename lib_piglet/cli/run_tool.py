@@ -8,7 +8,7 @@
 from lib_piglet.cli.cli_tool import task, args_interface, DOMAIN_TYPE
 from lib_piglet.domains import gridmap,n_puzzle,graph
 from lib_piglet.expanders import grid_expander, n_puzzle_expander, base_expander, graph_expander
-from lib_piglet.search import tree_search, graph_search,base_search,search_node, iterative_deepening
+from lib_piglet.search import tree_search, graph_search,base_search,search_node, iterative_deepening,graph_search_anytime
 from lib_piglet.utils.data_structure import queue,stack,bin_heap
 from lib_piglet.heuristics import gridmap_h,n_puzzle_h,graph_h
 
@@ -84,6 +84,8 @@ def run_task(t: task, args: args_interface):
         engine: base_search.base_search = None
         if args.framework == "tree":
             engine = tree_search.tree_search
+        elif args.framework == "graph" and args.strategy == "a-star" and args.anytime:
+            engine = graph_search_anytime.graph_search_anytime
         elif args.framework == "graph":
             engine = graph_search.graph_search
         elif args.framework == "iterative" :

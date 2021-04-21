@@ -21,6 +21,7 @@ class search_node:
     timestep_ = 0
     closed_ = False
     open_handle_ = None
+    expanded = False
 
     def __init__(self):
         # some default values for uninitialised nodes
@@ -69,7 +70,7 @@ def compare_node_g(a: search_node, b:search_node):
 # Return true if a >= b
 def compare_node_f(a: search_node, b:search_node):
     if a.f_ == b.f_:
-        return random.randint(0,1) == 1
+        return a.h_ >= b.h_
     return a.f_>=b.f_
 
 
