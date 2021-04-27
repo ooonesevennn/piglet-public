@@ -148,11 +148,12 @@ class grid_joint_expander(base_expander):
                 current_state.agent_locations_.pop(key)
 
         agents_left = list(current_state.agent_locations_.keys())
-        self.generate_states(current_state, agents_left,len(current_state.agent_locations_))
+        loc_set = set()
+        self.generate_states(current_state, agents_left,len(current_state.agent_locations_), loc_set)
 
         return self.succ_[:]
 
-    def generate_states(self, current_state: grid_joint_state, agents_left: list, cost: int):
+    def generate_states(self, current_state: grid_joint_state, agents_left: list, cost: int, loc_set):
         if len(agents_left) == 0:
             action = grid_action()
             action.move_ = None
@@ -168,10 +169,13 @@ class grid_joint_expander(base_expander):
             # The search will initialise the rest, assuming it decides
             # to add the corresponding successor to OPEN
             new_loc = self.__move(loc, a.move_)
-
+            if new_loc in loc_set:
+                continue
+            new_set = copy.deepcopy(loc_set)
+            new_set.add(new_loc)
             new_state = copy.deepcopy(current_state)
             new_state.agent_locations_[agent] = new_loc
-            self.generate_states(new_state, agents_left[:],cost)
+            self.generate_states(new_state, agents_left[:],cost,new_set)
 
 
     # return a list with all the applicable/valid actions
