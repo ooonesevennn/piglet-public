@@ -7,7 +7,7 @@ from lib_piglet.search.search_node import compare_node_g, compare_node_f
 
 
 def pigelet_heuristic(domain,current_state, goal_state):
-    return optimal_delete_relaxation_h(domain, current_state,goal_state)
+    return greedy_delete_relaxation_h(domain, current_state,goal_state)
 
 def greedy_delete_relaxation_h(domain, current_state,goal_state):
     if current_state in domain.h_dict:
