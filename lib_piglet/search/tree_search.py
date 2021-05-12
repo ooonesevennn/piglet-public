@@ -47,7 +47,7 @@ class tree_search(base_search):
                     return None,min_next_d,min_next_f
 
             # goal example. if successful, return the solution
-            if(current.state_ == goal_state):
+            if self.goal_test_function_(current.state_, goal_state):
                 self.solution_ = self.solution(current)
                 self.status_ = "Success"
                 self.runtime_ = time.process_time() - self.start_time

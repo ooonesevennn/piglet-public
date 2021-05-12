@@ -9,27 +9,30 @@ from lib_piglet.expanders.base_expander import base_expander
 from lib_piglet.search.search_node import search_node
 from lib_piglet.solution.solution import solution
 from lib_piglet.cli.cli_tool import statistic_template,statistic_header
+from typing import Callable
 
 
 class base_search:
-    nodes_generated_: int = 0
-    nodes_expanded_: int = 0
-    runtime_: float = 0
-    start_time_: float = 0
-    time_limit_: int = sys.maxsize
-    expander_: base_expander = None
-    solution_: solution = None
-    start_ = None
-    goal_ = None
-    status_ = None
-    heuristic_function_ = None
-    heuristic_weight = 1.0
+
 
     def __init__(self, open_list, expander:base_expander, heuristic_function = None, time_limit: int = sys.maxsize):
         self.open_list_ = open_list
-        self.expander_ = expander
+        self.expander_: base_expander = expander
         self.time_limit_ = time_limit
-        self.heuristic_function_ = heuristic_function
+        self.heuristic_function_: Callable = heuristic_function
+        self.goal_test_function_ : Callable= self.expander_.domain_.is_goal
+        self.all_nodes_list_ = {}
+
+        self.nodes_generated_: int = 0
+        self.nodes_expanded_: int = 0
+        self.runtime_: float = 0
+        self.start_time_: float = 0
+        self.solution_: solution = None
+        self.start_: object = None
+        self.goal_: object = None
+        self.status_: str = None
+        self.heuristic_weight_:float = 1.0
+        self.max_depth_ = 0
 
     # Search the path between two state
     # @param start_state The start of the path
@@ -61,12 +64,13 @@ class base_search:
             retval.parent_ = parent
             retval.timestep_= parent.timestep_ + 1
 
+
         if self.heuristic_function_ is None:
             retval.h_ = 0
             retval.f_ = retval.g_
         else:
-            retval.h_ = self.heuristic_function_(retval.state_, self.goal_)
-            retval.f_ = retval.g_ + retval.h_ * self.heuristic_weight
+            retval.h_ = self.heuristic_function_(self.expander_.domain_,retval.state_, self.goal_)
+            retval.f_ = retval.g_ + retval.h_ * self.heuristic_weight_
         return retval
 
     # extract the computed solution by following backpointers

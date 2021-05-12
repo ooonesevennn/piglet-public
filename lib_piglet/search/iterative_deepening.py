@@ -19,11 +19,10 @@ class ID_threshold(IntEnum):
 
 
 class iterative_deepening(base_search):
-    tree_search_engine: tree_search
 
     def __init__(self, open_list, expander: base_expander, heuristic_function=None, time_limit: int = sys.maxsize):
         super(iterative_deepening, self).__init__(open_list, expander, heuristic_function, time_limit)
-        self.tree_search_engine = tree_search(open_list, expander, heuristic_function, time_limit)
+        self.tree_search_engine: tree_search = tree_search(open_list, expander, heuristic_function, time_limit)
 
     # Search the path between two state
     # @param start_state The start of the path

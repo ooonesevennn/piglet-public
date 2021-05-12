@@ -7,9 +7,6 @@
 
 # Store solution of a search. paths_ attribute include a list of search_node.
 class solution:
-    cost_: int
-    depth_: int
-    paths_: list
 
     # Get solution statistic
     # @return list List of solution cost and depth.
@@ -17,9 +14,9 @@ class solution:
         return [self.cost_, self.depth_]
 
     def __init__(self, path: list, depth: int, cost: int):
-        self.cost_ = cost
-        self.depth_ = depth
-        self.paths_ = path
+        self.cost_: int = cost
+        self.depth_: int = depth
+        self.paths_: list = path
 
     def __str__(self):
         return "{}".format(self.paths_)

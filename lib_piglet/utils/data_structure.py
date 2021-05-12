@@ -7,6 +7,7 @@
 # @created: 2020-07-16
 #
 from collections import deque
+from typing import Callable
 
 
 # A stack push new item to the end of the stack and pop item from the end of the stack.
@@ -25,12 +26,10 @@ class queue(deque):
         self.appendleft(item)
 
 class heap_item:
-    item_ = None
-    handle_id_ = 0
 
     def __init__(self, item, handle_id):
-        self.item_ = item
-        self.handle_id_ = handle_id
+        self.item_: object = item
+        self.handle_id_: int = handle_id
 
     def __eq__(self, other):
         return self.item_ == other.item_
@@ -47,20 +46,19 @@ class bin_heap:
     Binary heap maintain highest priority items at the front of the queue
     and the lowest priority items at the back.
     """
-    heapList: list = [0]
-    currentSize: int = 0
-    current_id: int = 0
-    handle: dict ={}
-    compare_function = None #Compare_function return true if argument1 >= argument2
 
     def __init__(self, compare_function):
         """
         Initiate binary heap
         :param compare_function: A function that return true if give two search_nodes as arguments and node1 >= node2.
         """
-        self.heapList = [0]
-        self.currentSize = 0
-        self.compare_function = compare_function
+
+        self.heapList: list  = [0]
+        self.currentSize: int  = 0
+        self.compare_function: Callable = compare_function
+
+        self.current_id: int = 0
+        self.handle: dict ={}
 
 
     def insert(self, item):

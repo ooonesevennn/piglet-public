@@ -31,14 +31,16 @@ class DOMAIN_TYPE(IntEnum):
     gridmap = 0
     n_puzzle = 1
     graph = 2
+    pddl = 3
 
 
 # Describe task class.
 class task:
-    domain: str
-    domain_type: int
+    domain: str = None
+    domain_type: int = None
     start_state = None
     goal_state = None
+    problem: str = None
 
 
 framework_choice = ["tree",
@@ -54,7 +56,8 @@ strategy_choice = ["breadth",
                     ]
 domain_types = ["grid4",
                  "n-puzzle",
-                "graph"
+                "graph",
+                "pddl"
                  ]
 
 statistic_template = "{0:10}| {1:10}| {2:10}| {3:10}| {4:10}| {5:10}| {6:10}| {7:10}| {8:10}| {9:10}| {10:20}| {11:20}"
@@ -243,6 +246,13 @@ def parse_problem(problem: list,domain_type:int):
         except:
             print("err; Cannot convert {} {} to coordinates".format(*problem[1:3]),file=sys.stderr)
             exit(1)
+    elif domain_type == DOMAIN_TYPE.pddl:
+        ta.domain = problem[0]
+        ta.problem = problem[1]
+        
+        if len(problem) != 2:
+            print("err; the length of an entry of pddl problem should be 2. Check the sample pddl scenario format",file=sys.stderr)
+            exit(1)
     else:
         print("err; Unknown domain type", file=sys.stderr)
         exit(1)
@@ -259,6 +269,8 @@ def parse_scen_header(content):
         domain_type = DOMAIN_TYPE.gridmap
     elif content[1] == "graph":
         domain_type = DOMAIN_TYPE.graph
+    elif content[1] == "pddl":
+        domain_type = DOMAIN_TYPE.pddl
     else:
         print("err; Unknown domain type: {}".format(content[1]), file=sys.stderr)
         exit(1)

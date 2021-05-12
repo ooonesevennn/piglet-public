@@ -17,23 +17,19 @@ from lib_piglet.constraints.grid_constraints import grid_constraint_table, grid_
 import copy
 
 class grid_expander(base_expander):
-    domain_: gridmap
-    effects_: list
-    succ_: list
-    nodes_: list
-    constraint_table_: grid_constraint_table  = None
-    reservation_table_: grid_reservation_table = None # reservation_table_ is not used on default, decide how to use it on your own.
+
 
     def __init__(self, map : gridmap, constraint_table: grid_constraint_table = None):
-        self.domain_ = map
-        self.effects_ = [self.domain_.height_*-1, self.domain_.height_, -1, 1]
-        self.constraint_table_ = constraint_table
+        self.domain_: gridmap = map
+        self.effects_: list = [self.domain_.height_*-1, self.domain_.height_, -1, 1]
+        self.constraint_table_: grid_constraint_table   = constraint_table
+        self.reservation_table_: grid_reservation_table = None # reservation_table_ is not used on default, decide how to use it on your own.
 
         # memory for storing successor (state, action) pairs
-        self.succ_ = [None] * 4 
+        self.succ_: list = [None] * 4 
 
         # pre-allocate a pool of search nodes
-        self.nodes_ = []
+        self.nodes_: list = []
         for x in range(self.domain_.height_ * self.domain_.width_):
             self.nodes_.append(search_node())
 
@@ -115,23 +111,19 @@ class grid_expander(base_expander):
 
 
 class grid_joint_expander(base_expander):
-    domain_: gridmap_joint
-    effects_: list
-    succ_: list
-    nodes_: list
-    constraint_table_: grid_constraint_table = None
-    reservation_table_: grid_reservation_table = None  # reservation_table_ is not used on default, decide how to use it on your own.
+
 
     def __init__(self, map: gridmap, constraint_table: grid_constraint_table = None):
-        self.domain_ = map
-        self.effects_ = [self.domain_.height_ * -1, self.domain_.height_, -1, 1]
-        self.constraint_table_ = constraint_table
+        self.domain_: gridmap_joint = map
+        self.effects_: list = [self.domain_.height_ * -1, self.domain_.height_, -1, 1]
+        self.constraint_table_: grid_constraint_table  = constraint_table
+        self.reservation_table_: grid_reservation_table = None   # reservation_table_ is not used on default, decide how to use it on your own.
 
         # memory for storing successor (state, action) pairs
-        self.succ_ = [None] * 4
+        self.succ_: list = [None] * 4
 
         # pre-allocate a pool of search nodes
-        self.nodes_ = []
+        self.nodes_: list = []
         for x in range(self.domain_.height_ * self.domain_.width_):
             self.nodes_.append(search_node())
 

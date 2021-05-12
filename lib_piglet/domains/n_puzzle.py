@@ -17,9 +17,6 @@ class Puzzle_Actions(IntEnum):
     GOAL = -2
 
 class puzzle_state:
-    state_list_: list
-    from_action_: int = -1
-    x_index_: int
 
     # Print current state in a nice layout
     def print(self):
@@ -34,9 +31,9 @@ class puzzle_state:
         print(str_)
 
     def __init__(self, alist: list, x_index: int, from_action: int = Puzzle_Actions.START):
-        self.state_list_ = alist
-        self.from_action_ = from_action
-        self.x_index_ = x_index
+        self.state_list_: list = alist
+        self.from_action_: int  = from_action
+        self.x_index_: int = x_index
 
     def __eq__(self, other):
         if type(other) == str:
@@ -56,21 +53,19 @@ class puzzle_state:
 
 
 class n_puzzle:
-    width_: int
-    size_: int
-    goal_: puzzle_state
-    start_: puzzle_state
-    swap_offset: list
-    domain_file_ = "Unknown"
 
     # Initialize a problem
     # @param width The width of the puzzle
     def __init__(self, width: int):
-        self.width_ = width
-        self.size_ = width*width
+        self.width_: int = width
+        self.size_: int = width*width
         goal_list = ["x"] + list(range(1, self.width_*self.width_))
-        self.goal_ = puzzle_state(goal_list, self.width_-1, -2)
-        self.domain_file_ = width
+        self.goal_: puzzle_state = puzzle_state(goal_list, self.width_-1, -2)
+        self.start_: puzzle_state = None
+        self.domain_file_:str = width
+    
+    def is_goal(self, current_state, goal_state):
+        return current_state == goal_state
 
 
     def set_start(self, alist: list):

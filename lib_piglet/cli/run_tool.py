@@ -6,11 +6,11 @@
 
 
 from lib_piglet.cli.cli_tool import task, args_interface, DOMAIN_TYPE
-from lib_piglet.domains import gridmap,n_puzzle,graph
-from lib_piglet.expanders import grid_expander, n_puzzle_expander, base_expander, graph_expander
+from lib_piglet.domains import gridmap,n_puzzle,graph, pddl
+from lib_piglet.expanders import grid_expander, n_puzzle_expander, base_expander, graph_expander, pddl_expander
 from lib_piglet.search import tree_search, graph_search,base_search,search_node, iterative_deepening,graph_search_anytime
 from lib_piglet.utils.data_structure import queue,stack,bin_heap
-from lib_piglet.heuristics import gridmap_h,n_puzzle_h,graph_h
+from lib_piglet.heuristics import gridmap_h,n_puzzle_h,graph_h, pddl_h
 
 import sys
 
@@ -29,7 +29,7 @@ def run_task(t: task, args: args_interface):
     same_problem = False
 
     # if serach engine exist and domain file doesn't change, just update start and goal
-    if search_engine is not None and t.domain == domain.domain_file_:
+    if search_engine is not None and domain.domain_file_ is not None and  t.domain == domain.domain_file_:
         if t.domain_type == DOMAIN_TYPE.gridmap:
             start = t.start_state
             goal = t.goal_state
@@ -40,6 +40,12 @@ def run_task(t: task, args: args_interface):
         elif t.domain_type == DOMAIN_TYPE.graph:
             start = domain.get_vertex(t.start_state)
             goal = domain.get_vertex(t.goal_state)
+        elif t.domain_type == DOMAIN_TYPE.pddl:
+            domain = pddl.pddl(t.domain, t.problem)
+            expander = pddl_expander.pddl_expander(domain)
+            heuristic = pddl_h.pigelet_heuristic
+            start = domain.start_state_
+            goal = domain.goal_state_
 
     # if no search engine or domain file change, reload domain.
     else:
@@ -63,6 +69,12 @@ def run_task(t: task, args: args_interface):
             heuristic = graph_h.pigelet_heuristic
             start = domain.get_vertex(t.start_state)
             goal = domain.get_vertex(t.goal_state)
+        elif t.domain_type == DOMAIN_TYPE.pddl:
+            domain = pddl.pddl(t.domain, t.problem)
+            expander = pddl_expander.pddl_expander(domain)
+            heuristic = pddl_h.pigelet_heuristic
+            start = domain.start_state_
+            goal = domain.goal_state_
 
         # prepare open list and heuristic_function for different strategy
         heuristic_function = None
@@ -93,7 +105,7 @@ def run_task(t: task, args: args_interface):
             open_list = stack()
         search_engine = engine(open_list,expander,heuristic_function = heuristic_function,time_limit=args.time_limit)
 
-    search_engine.heuristic_weight = args.heuristic_weight
+    search_engine.heuristic_weight_ = args.heuristic_weight
 
     if args.framework == "iterative":
         if args.strategy == "depth":
@@ -176,7 +188,7 @@ def run_multi_tasks(domain_type,tasks: list, args: args_interface):
             open_list = stack()
         search_engine = engine(open_list,expander,heuristic_function = heuristic_function,time_limit=args.time_limit)
 
-    search_engine.heuristic_weight = args.heuristic_weight
+    search_engine.heuristic_weight_ = args.heuristic_weight
 
     if args.framework == "iterative":
         if args.strategy == "depth":

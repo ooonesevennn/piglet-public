@@ -19,7 +19,7 @@ gm = gridmap.gridmap(inputfile)
 
 expander = grid_expander(gm)
 search = tree_search(bin_heap(compare_node_g), expander)
-print_header()
+print_header(False)
 
 
 

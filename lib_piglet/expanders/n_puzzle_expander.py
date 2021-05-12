@@ -7,23 +7,19 @@ from enum import IntEnum
 
 
 class puzzle_action:
-    move_: int
-    cost_: int
-    next_x_index: int
+    
     def __init__(self, action: int, cost:int):
-        self.move_ = action
-        self.cost_ = cost
+        self.move_: int = action
+        self.cost_: int = cost
+        self.next_x_index: int = 0
         
 class n_puzzle_expander(base_expander):
-    domain_: n_puzzle
-    succ_: list
-    nodes_: list
-    swap_offset_: list
 
 
     def __init__(self,puzzle: n_puzzle):
-        self.domain_ = puzzle
-        self.succ_ = []
+        self.domain_: n_puzzle = puzzle
+        self.succ_: list = []
+        self.swap_offset_: list = None
         self.__init_swap_offset_()
 
     def expand(self, current_node: search_node):

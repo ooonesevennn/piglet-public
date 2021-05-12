@@ -17,8 +17,6 @@ from lib_piglet.solution.solution import solution
 
 
 class dijkstra_search(base_search):
-    all_nodes_list_ = {}
-    max_depth_ = 0
 
     # get distance from all state to target_state
     # @param target_state Then target_state of the search

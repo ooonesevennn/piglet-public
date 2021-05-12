@@ -7,10 +7,10 @@
 
 
 class base_expander:
-    domain_ = None
+
 
     def __init__(self, domain):
-        pass
+        self.domain_: object = domain
 
     # identify successors of the current node
     #

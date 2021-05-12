@@ -10,27 +10,22 @@ import sys, random
 from functools import total_ordering
 
 class search_node:
-    action_ = None
-    state_ = None
-    parent_ = None
-    g_ = 0
-    depth_ = None
-    instance_ = None
-    h_ = 0
-    f_ = 0
-    timestep_ = 0
-    closed_ = False
-    open_handle_ = None
-    expanded = False
 
     def __init__(self):
         # some default values for uninitialised nodes
-        self.action_ = None
-        self.state_ = None
-        self.parent_ = None
-        self.g_ = sys.maxsize
-        self.depth_ = sys.maxsize
-        self.instance_ = sys.maxsize
+        self.action_: object = None
+        self.state_: object = None
+        self.parent_: object = None
+        self.g_: float = 0
+        self.depth_: int = 0
+        self.instance_: int = 0
+        
+        self.h_: float = 0
+        self.f_ : float= 0
+        self.timestep_: int = 0
+        self.closed_:bool = False
+        self.open_handle_: object = None
+        self.expanded: bool = False
 
     # Is the node closed
     # @return bool True if the node is closed
@@ -78,6 +73,7 @@ def compare_node_f(a: search_node, b:search_node):
 # Return true if a >= b
 def compare_node_h(a: search_node, b:search_node):
     return a.h_>=b.h_
+
 
 
 

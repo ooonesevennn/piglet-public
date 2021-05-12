@@ -13,14 +13,12 @@
 import sys, math
 
 class grid_joint_state:
-    agent_locations_: dict
-    is_goal_: bool
-
+    
     def __init__(self, locations: list, is_goal =  False):
-        self.agent_locations_ = {}
+        self.agent_locations_: dict = {}
         for i in range(0,len(locations)):
             self.agent_locations_[i] = locations[i]
-        self.is_goal_ = is_goal
+        self.is_goal_: bool = is_goal
 
     def __eq__(self, other):
         # When comparing with a goal state, as long as all locations for each agent in "a" are same as the location for
@@ -57,18 +55,18 @@ class grid_joint_state:
 
 
 class gridmap:
-    map: list
-    height_: int
-    width_: int
-    map_size_: int
-    domain_file_: str
+
     
     def __init__(self,filename: str):
-        self.map_ = []
-        self.height_ = int(0)
-        self.width_ = int(0)
-        self.map_size_ = int(0)
+        self.map_: list = []
+        self.height_ : int= int(0)
+        self.width_: int = int(0)
+        self.map_size_: int = int(0)
+        self.domain_file_: str = filename
         self.load(filename)
+    
+    def is_goal(self, current_state, goal_state):
+        return current_state == goal_state
 
 
     # Load map in the map instance

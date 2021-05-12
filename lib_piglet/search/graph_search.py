@@ -13,10 +13,11 @@
 import sys, time
 from lib_piglet.search.base_search import base_search
 from lib_piglet.search.base_search import search_node
+from lib_piglet.expanders.pddl_expander import pddl_expander
 
 
 class graph_search(base_search):
-    all_nodes_list_ = {}
+    
 
     # Search the path between two state
     # @param start_state The start of the path
@@ -38,6 +39,7 @@ class graph_search(base_search):
             current: search_node = self.open_list_.pop()
             current.close()
             self.nodes_expanded_ +=1
+
             # If have time_limit, break time out search.
             if self.time_limit_ < sys.maxsize:
                 self.runtime_ = time.process_time() - self.start_time
@@ -45,7 +47,7 @@ class graph_search(base_search):
                     self.status_ = "Time out"
                     return None
             # goal example. if successful, return the solution
-            if(current.state_ == goal_state):
+            if self.goal_test_function_(current.state_, goal_state):
                 self.solution_ = self.solution(current)
                 self.status_ = "Success"
                 self.runtime_ = time.process_time() - self.start_time
@@ -56,6 +58,7 @@ class graph_search(base_search):
                 # each successor is a (state, action) tuple which
                 # which we map to a corresponding search_node and push
                 # then push onto the OPEN list
+
                 succ_node = self.generate(succ[0], succ[1], current)
                 # succ_node not in any list, add it to open list
                 if succ_node not in self.all_nodes_list_:
@@ -80,6 +83,10 @@ class graph_search(base_search):
         if exist.g_ > new.g_:
             exist.f_ = new.f_
             exist.g_ = new.g_
+            exist.depth_ = new.depth_
+            exist.instance_ = new.instance_
+            exist.action_ = new.action_
+            exist.timestep_ = new.timestep_
             exist.h_ = new.h_
             exist.parent_ = new.parent_
             if exist.open_handle_ is not None:

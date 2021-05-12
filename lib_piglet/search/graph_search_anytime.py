@@ -16,8 +16,7 @@ from lib_piglet.search.base_search import search_node
 
 
 class graph_search_anytime(base_search):
-    all_nodes_list_ = {}
-
+    
     # Search the path between two state
     # @param start_state The start of the path
     # @param goal_state Then goal of the path
@@ -64,7 +63,7 @@ class graph_search_anytime(base_search):
                         return self.solution_
             
             # update the upper bound if reach a goal node.
-            if(current.state_ == goal_state):
+            if self.goal_test_function_(current.state_, goal_state):
                 self.UB = current.g_
                 self.solution_ = self.solution(current)
                 if self.first_solution_time_ == None:

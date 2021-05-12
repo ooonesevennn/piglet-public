@@ -12,14 +12,11 @@ from lib_piglet.utils.tools import eprint
 import os,sys
 
 class vertex:
-    id:int
-    coordinate: tuple
-    adjacent: dict
 
     def __init__(self, id:int, coordinate:tuple):
-        self.id = id
-        self.coordinate = coordinate
-        self.adjacent = {}
+        self.id:int = id
+        self.coordinate: tuple = coordinate
+        self.adjacent: dict = {}
 
     def __str__(self):
         # return str(self.id) + ' adjacent: ' + str([(x.id,cost) for x,cost in self.get_connections()])
@@ -66,6 +63,9 @@ class graph:
         self.num_vertices = 0
         if filename is not None:
             self.load(filename)
+    
+    def is_goal(self, current_state, goal_state):
+        return current_state == goal_state
 
     def load(self, filename: str):
         if not os.path.exists(filename):
