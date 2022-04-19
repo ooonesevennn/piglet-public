@@ -7,7 +7,7 @@
 
 ; un-comment following line if constants are needed
 ;(:constants )
-;(:types food)
+(:types food)
 (:predicates 
     (enemy_around)
     (enemy_at_home) 

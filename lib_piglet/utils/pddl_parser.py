@@ -325,6 +325,52 @@ class PDDL_Parser:
             else:
                 positive.append(predicate)
 
+    #-----------------------------------------------
+    # Modify PDDL State
+    #-----------------------------------------------
+    
+    def add_pddl_type(self, type_name: str):
+        self.types[self.typeKeyName()].append(type_name)
+        self.objects[type_name] = []
+        
+    def add_pddl_object(self, object_name: str, object_type: str):
+        assert object_type in self.objects.keys(), "Invalid type"
+        self.objects[object_type].append(object_name)
+
+    def add_to_state(self, to_add: list):
+        new_state = []
+        for i in self.state:
+            new_state.append(i)
+        new_state.append(tuple(to_add))
+        self.state = frozenset(new_state)
+        
+    def remove_from_state(self, to_remove: list):
+        new_state = []
+        for i in self.state:
+            if i != tuple(to_remove):
+                new_state.append(i)
+        self.state = frozenset(new_state)
+        
+    def set_state(self, new_state: list):
+        self.state = frozenset(new_state)
+        
+    def set_positive_goals(self, positive_goals: list):
+        self.positive_goals = frozenset(positive_goals)
+        
+    def set_negative_goals(self, negative_goals: list):
+        self.negative_goals = frozenset(negative_goals)
+    
+    #-----------------------------------------------
+    # Utility
+    #-----------------------------------------------
+    
+    def countObstacles(self):
+        keys = list(self.types.keys())
+    
+        
+    def typeKeyName(self):
+        return list(self.types.keys())[0]
+
 #-----------------------------------------------
 # Main
 #-----------------------------------------------
