@@ -1,0 +1,1 @@
+{'closest-food': -1, 'bias': 1, '#-of-ghosts-1-step-away': -100, 'successorScore': 100, 'eats-food': 10}

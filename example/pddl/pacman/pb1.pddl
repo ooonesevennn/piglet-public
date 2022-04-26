@@ -2,9 +2,9 @@
 (define (problem win)
     (:domain pacman_bool)
     (:objects 
-        f1 - food
-        f2 - food
-        f3 - food
+        f1 - fish
+        f2 - c1
+        f3 - c2
     )
     (:init 
         (food_at_playground f1)

@@ -43,7 +43,7 @@ def run_task(t: task, args: args_interface):
         elif t.domain_type == DOMAIN_TYPE.pddl:
             domain = pddl.pddl(t.domain, t.problem)
             expander = pddl_expander.pddl_expander(domain)
-            heuristic = pddl_h.pigelet_heuristic
+            heuristic = pddl_h.piglet_heuristic
             start = domain.start_state_
             goal = domain.goal_state_
 

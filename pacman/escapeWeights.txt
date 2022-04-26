@@ -1,0 +1,1 @@
+{'onDefense': 1000, 'enemyDistance': 30, 'stop': -100, 'distanceToHome': -20}

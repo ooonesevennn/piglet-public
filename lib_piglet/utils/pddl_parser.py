@@ -29,6 +29,9 @@ class Action:
         '\n  add_effects: ' + str([list(i) for i in self.add_effects]) + \
         '\n  del_effects: ' + str([list(i) for i in self.del_effects]) + '\n'
 
+    def __repr__(self):
+        return 'action: ' + self.name
+
     #-----------------------------------------------
     # Equality
     #-----------------------------------------------
@@ -108,11 +111,11 @@ class PDDL_Parser:
                     list = stack.pop()
                     list.append(l)
                 else:
-                    raise Exception('Missing open parentheses')
+                    raise Exception('Missing open parentheses when parsing:'+list[0][-1].__str__() if len(list)>=1 and len(list[0])>=1 else "Missing open parentheses" )
             else:
                 list.append(t)
         if stack:
-            raise Exception('Missing close parentheses')
+            raise Exception('Missing close parentheses when parsing: '+ stack[-1].__str__() if len(stack)>=1 else "Missing close parentheses")
         if len(list) != 1:
             raise Exception('Malformed expression')
         return list[0]
@@ -328,28 +331,45 @@ class PDDL_Parser:
     #-----------------------------------------------
     # Modify PDDL State
     #-----------------------------------------------
-    
-    def add_pddl_type(self, type_name: str):
-        self.types[self.typeKeyName()].append(type_name)
-        self.objects[type_name] = []
         
-    def add_pddl_object(self, object_name: str, object_type: str):
-        assert object_type in self.objects.keys(), "Invalid type"
+    def add_pddl_object(self, object_name: str, object_type: str = "object"):
+        found = False
+        for key,item in self.types.items():
+            if key == object_type or object_type in item:
+                found = True
+                break
+        assert found, "Invalid type: "+object_type
+        if object_type not in self.objects:
+            self.objects[object_type] = []
         self.objects[object_type].append(object_name)
 
-    def add_to_state(self, to_add: list):
+    def add_to_state(self, to_add: tuple):
         new_state = []
         for i in self.state:
             new_state.append(i)
         new_state.append(tuple(to_add))
         self.state = frozenset(new_state)
         
-    def remove_from_state(self, to_remove: list):
+    def remove_from_state(self, to_remove: tuple):
         new_state = []
         for i in self.state:
             if i != tuple(to_remove):
                 new_state.append(i)
         self.state = frozenset(new_state)
+    
+    def reset_problem(self):
+        self.state = frozenset()
+        self.positive_goals = frozenset()
+        self.negative_goals = frozenset()
+        for key in self.objects.keys():
+            self.objects[key] = []
+    
+    def set_objects(self, objects: list):
+        # objects is a list of tuple : (obj, type)
+        for key in self.objects.keys():
+            self.objects[key] = []
+        for item in objects:
+            self.add_pddl_object(item[0], item[1] if len(item) >= 2 else "object")
         
     def set_state(self, new_state: list):
         self.state = frozenset(new_state)

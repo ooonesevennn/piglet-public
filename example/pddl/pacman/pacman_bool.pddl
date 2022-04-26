@@ -3,11 +3,17 @@
 (define (domain pacman_bool)
 
 ;remove requirements that are not needed
-(:requirements :strips )
+(:requirements :strips :typing)
 
 ; un-comment following line if constants are needed
 ;(:constants )
-(:types food)
+(:types 
+    food - object
+    c1 - capsule
+    c2 - capsule
+    fish - food
+    )
+
 (:predicates 
     (enemy_around)
     (enemy_at_home) 
