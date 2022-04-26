@@ -14,6 +14,10 @@ class Move_Actions(IntEnum):
     MOVE_RIGHT = 2
     MOVE_DOWN = 3
     MOVE_WAIT = 4
+    MOVE_UP_LEFT = 5
+    MOVE_UP_RIGHT = 6
+    MOVE_DOWN_RIGHT = 7
+    MOVE_DOWN_LEFT = 8
 
 class grid_action:
 
@@ -30,5 +34,14 @@ class grid_action:
             print("LEFT " + str(self.cost_))
         elif(self.move_ == Move_Actions.MOVE_RIGHT):
             print("RIGHT " + str(self.cost_))
+        elif(self.move_ == Move_Actions.MOVE_UP_LEFT):
+            print("UP LEFT " + str(self.cost_))
+        elif(self.move_ == Move_Actions.MOVE_UP_RIGHT):
+            print("UP RIGHT " + str(self.cost_))
+        elif(self.move_ == Move_Actions.MOVE_DOWN_RIGHT):
+            print("DOWN RIGHT " + str(self.cost_))
+        elif(self.move_ == Move_Actions.MOVE_DOWN_LEFT):
+            print("DOWN LEFT " + str(self.cost_))
         else:
             print("WAIT " + str(self.cost_))
+
