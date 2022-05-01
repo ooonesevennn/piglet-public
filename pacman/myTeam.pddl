@@ -23,7 +23,7 @@
         (food_available) ; still have food on enemy land
 
         ;Predicates for virtual state to set goal states
-        (win_the_game) ;The environment do not collect state for this predicates, this is a virtual effect state for action patrol 
+        (defend_foods) ;The environment do not collect state for this predicates, this is a virtual effect state for action patrol 
 
 
         ;Advanced predicates
@@ -138,7 +138,7 @@
             (winning_gt5)
         )
         :effect (and 
-            (win_the_game)
+            (defend_foods)
         )
     )
 

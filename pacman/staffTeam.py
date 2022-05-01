@@ -1,4 +1,4 @@
-# baselineTeam.py
+# myTeam.py
 # ---------------
 # Licensing Information:  You are free to use or extend these projects for
 # educational purposes provided that (1) you do not distribute or publish
@@ -12,7 +12,7 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
-# baselineTeam.py
+# myTeam.py
 # ---------------
 # Licensing Information: Please do not distribute or publish solutions to this
 # project. You are free to use and extend these projects for educational
@@ -20,7 +20,10 @@
 # John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
 
+from ast import Raise
 from typing import List, Tuple
+
+from numpy import true_divide
 from captureAgents import CaptureAgent
 import distanceCalculator
 import random, time, util, sys, os
@@ -33,10 +36,13 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 base_folder = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(base_folder+"/../") # make sure we can import pddl solver from piglet
 from lib_piglet.utils.pddl_solver import pddl_solver
+from lib_piglet.domains.pddl import pddl_state
+from lib_piglet.utils.pddl_parser import Action
 
 CLOSE_DISTANCE = 4
 MEDIUM_DISTANCE = 15
 LONG_DISTANCE = 25
+
 
 #################
 # Team creation #
@@ -61,11 +67,6 @@ def createTeam(firstIndex, secondIndex, isRed,
     """
     return [eval(first)(firstIndex), eval(second)(secondIndex)]
 
-############################################################
-# Exchange Information Between Agents with Global Variables#
-############################################################
-
-CURRENT_ACTION = {}
 
 ##########
 # Agents #
@@ -75,6 +76,8 @@ class MixedAgent(CaptureAgent):
     """
     This is an agent that use pddl to guide the high level actions of Pacman
     """
+    # Default weights for q learning, if no QLWeights.txt find, we use the following weights.
+    # You should add your weights for new low level planner here as well.
     QLWeights = {
             "offensiveWeights":{'closest-food': -1, 
                                         'bias': 1, 
@@ -84,30 +87,42 @@ class MixedAgent(CaptureAgent):
             "defensiveWeights": {'numInvaders': -1000, 'onDefense': 100, 'invaderDistance': -10, 'stop': -100, 'reverse': -2},
             "escapeWeights": {'onDefense': 1000, 'enemyDistance': 30, 'stop': -100, 'distanceToHome': -20}
         }
+    QLWeightsFile = base_folder+'/QLWeightsStaffTeam.txt'
+
+    # Also can use class variable to exchange information between agents.
+    CURRENT_ACTION = {}
+
 
     def registerInitialState(self, gameState: GameState):
-        self.pddl_solver = pddl_solver(base_folder+'/pacman_bool.pddl')
-        self.plan = None # list of actions
-        self.currentActionIndex = 0 # index of action in self.plan should be execute next
+        self.pddl_solver = pddl_solver(base_folder+'/staffTeam.pddl')
+        self.highLevelPlan: List[Tuple[Action,pddl_state]] = None # Plan is a list Action and pddl_state
+        self.currentNegativeGoalStates = []
+        self.currentPositiveGoalStates = []
+        self.currentActionIndex = 0 # index of action in self.highLevelPlan should be execute next
 
-        self.start = gameState.getAgentPosition(self.index)
+        self.startPosition = gameState.getAgentPosition(self.index) # the start location of the agent
         CaptureAgent.registerInitialState(self, gameState)
 
-        self.trainning = True
-        self.epsilon = 0.2 #default exploration prob
-        self.alpha = 0.2 #default learning rate
+        self.lowLevelPlan: List[Tuple[str,Tuple]] = []
+        self.lowLevelActionIndex = 0
+
+        # REMEMBER TRUN TRAINNING TO FALSE when submit to contest server.
+        self.trainning = True # trainning mode to true will keep update weights and generate random movements by prob.
+        self.epsilon = 0.1 #default exploration prob, change to take a random step
+        self.alpha = 0.1 #default learning rate
         self.discountRate = 0.9 # default discount rate on successor state q value when update
         
-
-        CURRENT_ACTION[self.index]={}
+        # Use a dictionary to save information about current agent.
+        MixedAgent.CURRENT_ACTION[self.index]={}
         """
         Open weights file if it exists, otherwise start with empty weights.
         NEEDS TO BE CHANGED BEFORE SUBMISSION
 
         """
-        if os.path.exists(base_folder+'/QLWeights.txt'):
-            with open(base_folder+'/QLWeights.txt', "r") as file:
+        if os.path.exists(MixedAgent.QLWeightsFile):
+            with open(MixedAgent.QLWeightsFile, "r") as file:
                 MixedAgent.QLWeights = eval(file.read())
+            print("Load QLWeights:",MixedAgent.QLWeights )
         
     
     def final(self, gameState : GameState):
@@ -115,47 +130,65 @@ class MixedAgent(CaptureAgent):
         This function write weights into files after the game is over. 
         You may want to comment (disallow) this function when submit to contest server.
         """
-        print(self.QLWeights)
-        file = open('QLWeights.txt', 'w')
+        print("Write QLWeights:", MixedAgent.QLWeights)
+        file = open(MixedAgent.QLWeightsFile, 'w')
         file.write(str(MixedAgent.QLWeights))
         file.close()
     
 
     def chooseAction(self, gameState: GameState):
         """
-        Picks among the actions with the highest Q(s,a).
+        This is the action entry point for the agent.
+        In the game, this function is called when its current agent's turn to move.
+
+        We first pick a high-level action.
+        Then generate low-level action (up down left right wait) to achieve the high-level action.
         """
+
+        #-------------High Level Plan Section-------------------
         # Get high level action from a pddl plan.
 
         # Collect objects and init states from gameState
         objects, initState = self.get_pddl_state(gameState)
+        positiveGoal, negtiveGoal = self.getGoals(objects,initState)
 
         # Check if we can stick to current plan 
-        if not self.stateSatisfyCurrentPlan(initState):
+        if not self.stateSatisfyCurrentPlan(initState, positiveGoal, negtiveGoal):
             # Cannot stick to current plan, prepare goals and replan
-            positiveGoal, negtiveGoal = self.getGoals(objects,initState)
             print("Agnet:",self.index,"compute plan:")
             print("\tOBJ:"+str(objects),"\tINIT:"+str(initState), "\tPOSITIVE_GOAL:"+str(positiveGoal), "\tNEGTIVE_GOAL:"+str(negtiveGoal),sep="\n")
-            self.plan = self.getPlan(objects, initState,positiveGoal, negtiveGoal)
+            self.highLevelPlan: List[Tuple[Action,pddl_state]] = self.getHighLevelPlan(objects, initState,positiveGoal, negtiveGoal) # Plan is a list Action and pddl_state
             self.currentActionIndex = 0
-            print("\tPLAN:",self.plan)
-        if len(self.plan)==0:
+            self.lowLevelPlan = [] # reset low level plan
+            print("\tPLAN:",self.highLevelPlan)
+        if len(self.highLevelPlan)==0:
             raise Exception("Solver retuned empty plan, you need to think how you handle this situation or how you modify your model ")
         
         # Get next action from the plan
-        highLevelAction = self.plan[self.currentActionIndex][0].name
-        CURRENT_ACTION[self.index] = highLevelAction
+        highLevelAction = self.highLevelPlan[self.currentActionIndex][0].name
+        MixedAgent.CURRENT_ACTION[self.index] = highLevelAction
         print("Agent:", self.index, highLevelAction)
 
-        # get the low level action from low level plan
-        lowLevelPlan = self.getLowLevelPlan(gameState, highLevelAction)
+        #-------------Low Level Plan Section-------------------
+        # Get the low level plan using Q learning, and return a low level action at last.
+        # A low level action is defined in Directions, whihc include {"North", "South", "East", "West", "Stop"}
 
-        return lowLevelPlan[0]
+        if not self.posSatisfyLowLevelPlan(gameState):
+            self.lowLevelPlan = self.getLowLevelPlanQL(gameState, highLevelAction) #Generate low level plan with q learning
+            # you can replace the getLowLevelPlanQL with getLowLevelPlanHS and implement heuristic search planner
+            self.lowLevelActionIndex = 0
+        lowLevelAction = self.lowLevelPlan[self.lowLevelActionIndex][0]
+        self.lowLevelActionIndex+=1
+        print(lowLevelAction, self.lowLevelPlan)
+        return lowLevelAction
 
     #------------------------------- PDDL and High-Level Action Functions ------------------------------- 
     
     
-    def getPlan(self, objects, initState, positiveGoal, negtiveGoal):
+    def getHighLevelPlan(self, objects, initState, positiveGoal, negtiveGoal) -> List[Tuple[Action,pddl_state]]:
+        """
+        This function prepare the pddl problem, solve it and return pddl plan
+        """
         # Prepare pddl problem
         self.pddl_solver.parser_.reset_problem()
         self.pddl_solver.parser_.set_objects(objects)
@@ -167,6 +200,9 @@ class MixedAgent(CaptureAgent):
         return self.pddl_solver.solve()
 
     def get_pddl_state(self,gameState:GameState) -> Tuple[List[Tuple],List[Tuple]]:
+        """
+        This function collects pddl :objects and :init states from simulator gameState.
+        """
         # Collect objects and states from the gameState
 
         states = []
@@ -275,26 +311,30 @@ class MixedAgent(CaptureAgent):
                 states.append(("is_pacman",enemy_object))
             typeIndex += 1
             
-
-        
         return objects, states
     
-    def stateSatisfyCurrentPlan(self, init_state: List[Tuple]):
-        if self.plan is None:
+    def stateSatisfyCurrentPlan(self, init_state: List[Tuple],positiveGoal, negtiveGoal):
+        if self.highLevelPlan is None:
             # No plan, need a new plan
+            self.currentNegativeGoalStates = negtiveGoal
+            self.currentPositiveGoalStates = positiveGoal
             return False
         
-        if self.pddl_solver.matchEffect(init_state, self.plan[self.currentActionIndex][0] ):
+        if positiveGoal != self.currentPositiveGoalStates or negtiveGoal != self.currentNegativeGoalStates:
+            return False
+        
+        if self.pddl_solver.matchEffect(init_state, self.highLevelPlan[self.currentActionIndex][0] ):
             # The current state match the effect of current action, current action action done, move to next action
-            if self.currentActionIndex < len(self.plan) -1 and self.pddl_solver.satisfyPrecondition(init_state, self.plan[self.currentActionIndex+1][0]):
+            if self.currentActionIndex < len(self.highLevelPlan) -1 and self.pddl_solver.satisfyPrecondition(init_state, self.highLevelPlan[self.currentActionIndex+1][0]):
                 # Current action finished and next action is applicable
                 self.currentActionIndex += 1
+                self.lowLevelPlan = [] # reset low level plan
                 return True
             else:
                 # Current action finished, next action is not applicable or finish last action in the plan
                 return False
 
-        if self.pddl_solver.satisfyPrecondition(init_state, self.plan[self.currentActionIndex][0]):
+        if self.pddl_solver.satisfyPrecondition(init_state, self.highLevelPlan[self.currentActionIndex][0]):
             # Current action precondition satisfied, continue executing current action of the plan
             return True
         
@@ -333,19 +373,43 @@ class MixedAgent(CaptureAgent):
         # The "win_the_game" pddl state is only reachable by the "patrol" action in pddl,
         # using it as goal, pddl will generate plan eliminate invading enemy and patrol on our ground.
 
-        positiveGoal = [("win_the_game",)]
+        positiveGoal = [("defend_foods",)]
         negtiveGoal = []
         
         return positiveGoal, negtiveGoal
 
-    #------------------------------- Q-learning and low level action Functions -------------------------------
+    #------------------------------- Heuristic search low level plan Functions -------------------------------
+    def getLowLevelPlanHS(self, gameState: GameState, highLevelAction: str) -> List[Tuple[str,Tuple]]:
+        # This is a function for plan low level actions using heuristic search.
+        # You need to implement this function if you want to solve low level actions using heuristic search.
+        # Here, we list some function you might need, read the GameState and CaptureAgent code for more useful functions.
+        # These functions also useful for collecting features for Q learnning low levels.
+
+        map = gameState.getWalls() # a 2d array matrix of obstacles, map[x][y] = true means a obstacle(wall) on x,y, map[x][y] = false indicate a free location
+        foods = self.getFood(gameState) # a 2d array matrix of food,  foods[x][y] = true if there's a food.
+        capsules = self.getCapsules(gameState) # a list of capsules
+        foodNeedDefend = self.getFoodYouAreDefending(gameState) # return food will be eatan by enemy (food next to enemy)
+        capsuleNeedDefend = self.getCapsulesYouAreDefending(gameState) # return capsule will be eatan by enemy (capsule next to enemy)
+        Raise(NotImplementedError("Heuristic Search low level "))
+        return [] # You should return a list of tuple of move action and target location (exclude current location).
+    
+    def posSatisfyLowLevelPlan(self,gameState: GameState):
+        if self.lowLevelPlan == None or len(self.lowLevelPlan)==0 or self.lowLevelActionIndex >= len(self.lowLevelPlan):
+            return False
+        myPos = gameState.getAgentPosition(self.index)
+        nextPos = Actions.getSuccessor(myPos,self.lowLevelPlan[self.lowLevelActionIndex][0])
+        if nextPos != self.lowLevelPlan[self.lowLevelActionIndex][1]:
+            return False
+        return True
+
+    #------------------------------- Q-learning low level plan Functions -------------------------------
 
     """
     Iterate through all q-values that we get from all
     possible actions, and return the action associated
     with the highest q-value.
     """
-    def getLowLevelPlan(self, gameState, highLevelAction):
+    def getLowLevelPlanQL(self, gameState:GameState, highLevelAction: str) -> List[Tuple[str,Tuple]]:
         values = []
         legalActions = gameState.getLegalActions(self.index)
         rewardFunction = None
@@ -353,16 +417,23 @@ class MixedAgent(CaptureAgent):
         weights = None
         learningRate = 0
         if highLevelAction == "go_to_enemy_land" or highLevelAction == "eat_food":
+            # The q learning process for offensive actions are complete, 
+            # you can improve getOffensiveFeatures to collect more useful feature to pass more information to Q learning model
+            # you can improve the getOffensiveReward function to give reward for new features and improve the trainning process .
             rewardFunction = self.getOffensiveReward
             featureFunction = self.getOffensiveFeatures
             weights = self.getOffensiveWeights()
             learningRate = self.alpha
         elif highLevelAction == "go_home" or highLevelAction == "unpack_food":
+            # The q learning process for escape actions are NOT complete,
+            # Introduce more features and complete the q learning process
             rewardFunction = self.getEscapeReward
             featureFunction = self.getEscapeFeatures
             weights = self.getEscapeWeights()
-            learningRate = 0 # learning rate set to 0 as reward function not implemented for this action, do not do q update 
+            learningRate = 0 # learning rate set to 0 as reward function not implemented for this action, do not do q update, 
         else:
+            # The q learning process for defensive actions are NOT complete,
+            # Introduce more features and complete the q learning process
             rewardFunction = self.getDefensiveReward
             featureFunction = self.getDefensiveFeatures
             weights = self.getDefensiveWeights()
@@ -372,15 +443,16 @@ class MixedAgent(CaptureAgent):
             prob = util.flipCoin(self.epsilon) # get change of perform random movement
             if prob and self.trainning:
                 action = random.choice(legalActions)
-                return [action]
             else:
                 for action in legalActions:
                         if self.trainning:
                             self.updateWeights(gameState, action, rewardFunction, featureFunction, weights,learningRate)
-                            print("Agent",self.index," weights:", weights)
+                            # print("Agent",self.index," weights:", weights)
                         values.append((self.getQValue(featureFunction(gameState, action), weights), action))
-        print(legalActions,values)
-        return [max(values)[1]]
+                action = max(values)[1]
+        myPos = gameState.getAgentPosition(self.index)
+        nextPos = Actions.getSuccessor(myPos,action)
+        return [(action, nextPos)]
 
 
     """
@@ -412,8 +484,6 @@ class MixedAgent(CaptureAgent):
     def getValue(self, nextState: GameState, featureFunction, weights):
         qVals = []
         legalActions = nextState.getLegalActions(self.index)
-        # if self.trainning:
-        #     legalActions.remove(Directions.STOP)
 
         if len(legalActions) == 0:
             return 0.0
@@ -426,7 +496,7 @@ class MixedAgent(CaptureAgent):
     def getOffensiveReward(self, gameState, nextState):
         # Calculate the reward. NEEDS WORK
         currentAgentState:AgentState = gameState.getAgentState(self.index)
-        nextAgentState:AgentState = gameState.getAgentState(self.index)
+        nextAgentState:AgentState = nextState.getAgentState(self.index)
 
 
         new_food_carry = nextAgentState.numCarrying - currentAgentState.numCarrying
@@ -434,25 +504,24 @@ class MixedAgent(CaptureAgent):
 
         if new_food_carry > 0:
             #get new food, return positive scre
-            return new_food_carry*100
-        elif new_food_carry == 0:
-            #nothing happens
-            food_dist = self.stateClosestFood(gameState)
-            new_food_dist = self.stateClosestFood(nextState)
-            if new_food_dist is not None and food_dist is not None and new_food_dist<food_dist:
-                return 50
-            return -50
+            return 200
         elif new_food_carry<0 and new_food_returned == 0:
             # agent is eaten! by enemy! return large negative reward.
-            return new_food_carry*100
+            return -200
+        elif new_food_carry<0 and new_food_returned > 0:
+            # return home and gain score
+            return  new_food_returned * 1000
         else:
-            return (nextState.getScore() - gameState.getScore()) * 100
+            # nothing happens
+            return -10
     
     def getDefensiveReward(self,gameState, nextState):
-         return 0
+        print("Warnning: DefensiveReward not implemented yet, and learnning rate is 0 for defensive ",file=sys.stderr)
+        return 0
     
     def getEscapeReward(self,gameState, nextState):
-         return 0
+        print("Warnning: EscapeReward not implemented yet, and learnning rate is 0 for escape",file=sys.stderr)
+        return 0
 
 
 
@@ -502,10 +571,10 @@ class MixedAgent(CaptureAgent):
         if dist is not None:
                 # make the distance a number less than one otherwise the update
                 # will diverge wildly
-                features["closest-food"] = float(dist) / (walls.width * walls.height) 
+                features["closest-food"] = dist
 
         # Normalize and return
-        features.divideAll(10.0)
+        features.divideAll(5.0)
         return features
 
     def getOffensiveWeights(self):
@@ -532,7 +601,7 @@ class MixedAgent(CaptureAgent):
             features['enemyDistance'] = min(dists)
 
         if action == Directions.STOP: features['stop'] = 1
-        features["distanceToHome"] = self.getMazeDistance(myPos,myState.start.getPosition())
+        features["distanceToHome"] = self.getMazeDistance(myPos,self.startPosition)
 
         return features
 
@@ -608,7 +677,7 @@ class MixedAgent(CaptureAgent):
         # no food found
         return None
     
-    def getSuccessor(self, gameState, action):
+    def getSuccessor(self, gameState: GameState, action):
         """
         Finds the next successor which is a grid position (location tuple).
         """
