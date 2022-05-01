@@ -107,7 +107,7 @@ class MixedAgent(CaptureAgent):
         self.lowLevelActionIndex = 0
 
         # REMEMBER TRUN TRAINNING TO FALSE when submit to contest server.
-        self.trainning = True # trainning mode to true will keep update weights and generate random movements by prob.
+        self.trainning = False # trainning mode to true will keep update weights and generate random movements by prob.
         self.epsilon = 0.1 #default exploration prob, change to take a random step
         self.alpha = 0.1 #default learning rate
         self.discountRate = 0.9 # default discount rate on successor state q value when update
