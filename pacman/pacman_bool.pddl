@@ -22,8 +22,12 @@
         (food_in_backpack ?a - team)  ; have food in backpack
         (food_available) ; still have food on enemy land
 
+        ;Predicates for virtual state to set goal states
+        (win_the_game) ;The environment do not collect state for this predicates, this is a virtual effect state for action patrol 
+
+
         ;Advanced predicates
-        ;They are currently not used and consider the state of other agent 
+        ;These predicates are currently not used and consider the state of other agent 
         (enemy_long_distance ?e - enemy ?a - current_agent) ; noisy distance return longer than 25 
         (enemy_medium_distance ?e - enemy ?a - current_agent) ; noisy distance return longer than 15 
         (enemy_short_distance ?e - enemy ?a - current_agent) ; noisy distance return shorter than 15 
@@ -122,6 +126,19 @@
             (not (10_food_in_backpack ?a))
             (not (5_food_in_backpack ?a))
             (not (3_food_in_backpack ?a))
+        )
+    )
+
+    (:action patrol
+        :parameters (?a - current_agent ?e1 - enemy1 ?e2 - enemy2)
+        :precondition (and 
+            (not (is_pacman ?a))
+            (not (is_pacman ?e1))
+            (not (is_pacman ?e2))
+            (winning_gt5)
+        )
+        :effect (and 
+            (win_the_game)
         )
     )
 
