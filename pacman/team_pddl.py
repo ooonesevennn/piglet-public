@@ -75,6 +75,15 @@ class MixedAgent(CaptureAgent):
     """
     This is an agent that use pddl to guide the high level actions of Pacman
     """
+    QLWeights = {
+            "offensiveWeights":{'closest-food': -1, 
+                                        'bias': 1, 
+                                        '#-of-ghosts-1-step-away': -100, 
+                                        'successorScore': 100, 
+                                        'eats-food': 10},
+            "defensiveWeights": {'numInvaders': -1000, 'onDefense': 100, 'invaderDistance': -10, 'stop': -100, 'reverse': -2},
+            "escapeWeights": {'onDefense': 1000, 'enemyDistance': 30, 'stop': -100, 'distanceToHome': -20}
+        }
 
     def registerInitialState(self, gameState: GameState):
         self.pddl_solver = pddl_solver(base_folder+'/pacman_bool.pddl')
@@ -84,49 +93,31 @@ class MixedAgent(CaptureAgent):
         self.start = gameState.getAgentPosition(self.index)
         CaptureAgent.registerInitialState(self, gameState)
 
-        self.epsilon = 0.0 #exploration prob
-        self.alpha = 0.2 #learning rate
-        self.discountRate = 0.8
-        self.offensiveWeights = {'closest-food': -1, 
-                                        'bias': 1, 
-                                        '#-of-ghosts-1-step-away': -100, 
-                                        'successorScore': 100, 
-                                        'eats-food': 10}
-        self.defensiveWeights = {'numInvaders': -1000, 'onDefense': 100, 'invaderDistance': -10, 'stop': -100, 'reverse': -2}	
-        self.escapeWeights = {'onDefense': 1000, 'enemyDistance': 30, 'stop': -100, 'distanceToHome': -20}
+        self.trainning = True
+        self.epsilon = 0.2 #default exploration prob
+        self.alpha = 0.2 #default learning rate
+        self.discountRate = 0.9 # default discount rate on successor state q value when update
+        
+
         CURRENT_ACTION[self.index]={}
         """
         Open weights file if it exists, otherwise start with empty weights.
         NEEDS TO BE CHANGED BEFORE SUBMISSION
 
         """
-        # if os.path.exists(base_folder+'/offensiveWeights.txt'):
-        #     with open(base_folder+'/offensiveWeights.txt', "r") as file:
-        #         self.offensiveWeights = eval(file.read())
+        if os.path.exists(base_folder+'/QLWeights.txt'):
+            with open(base_folder+'/QLWeights.txt', "r") as file:
+                MixedAgent.QLWeights = eval(file.read())
         
-        # if os.path.exists(base_folder + '/defensiveWeights.txt'):
-        #     with open(base_folder+'/defensiveWeights.txt', "r") as file:
-        #         self.defensiveWeights = eval(file.read())
-        
-        # if os.path.exists(base_folder+'/escapeWeights.txt'):
-        #     with open(base_folder+'/escapeWeights.txt', "r") as file:
-        #         self.escapeWeights = eval(file.read())
     
     def final(self, gameState : GameState):
         """
         This function write weights into files after the game is over. 
         You may want to comment (disallow) this function when submit to contest server.
         """
-        file = open('offensiveWeights.txt', 'w')
-        file.write(str(self.offensiveWeights))
-        file.close()
-
-        file = open('defensiveWeights.txt', 'w')
-        file.write(str(self.defensiveWeights))
-        file.close()
-
-        file = open('escapeWeights.txt', 'w')
-        file.write(str(self.escapeWeights))
+        print(self.QLWeights)
+        file = open('QLWeights.txt', 'w')
+        file.write(str(MixedAgent.QLWeights))
         file.close()
     
 
@@ -134,22 +125,6 @@ class MixedAgent(CaptureAgent):
         """
         Picks among the actions with the highest Q(s,a).
         """
-
-        # get high level action from pddl plan
-        highLevelAction: str = self.getHighLevelAction(gameState)
-
-        # get exact low level plan to achieve the high level action. 
-        if highLevelAction == "go_to_enemy_land" or highLevelAction == "eat_food":
-            action = self.getOffensiveAction(gameState)
-        elif highLevelAction == "go_home" or highLevelAction == "unpack_food":
-            action = self.getEscapeAction(gameState)
-        else:
-            action = self.getDefensiveAction(gameState)
-        return action
-
-    #------------------------------- PDDL and High-Level Action Functions ------------------------------- 
-    
-    def getHighLevelAction(self,gameState: GameState):
         # Get high level action from a pddl plan.
 
         # Collect objects and init states from gameState
@@ -168,10 +143,17 @@ class MixedAgent(CaptureAgent):
             raise Exception("Solver retuned empty plan, you need to think how you handle this situation or how you modify your model ")
         
         # Get next action from the plan
-        highLevelAction = self.plan[self.currentActionIndex][0]
-        CURRENT_ACTION[self.index] = highLevelAction.name
-        print("Agent:", self.index, highLevelAction.name)
-        return highLevelAction.name
+        highLevelAction = self.plan[self.currentActionIndex][0].name
+        CURRENT_ACTION[self.index] = highLevelAction
+        print("Agent:", self.index, highLevelAction)
+
+        # get the low level action from low level plan
+        lowLevelPlan = self.getLowLevelPlan(gameState, highLevelAction)
+
+        return lowLevelPlan[0]
+
+    #------------------------------- PDDL and High-Level Action Functions ------------------------------- 
+    
     
     def getPlan(self, objects, initState, positiveGoal, negtiveGoal):
         # Prepare pddl problem
@@ -359,124 +341,124 @@ class MixedAgent(CaptureAgent):
     #------------------------------- Q-learning and low level action Functions -------------------------------
 
     """
-    Iterate through all features (closest food, bias, ghost dist),
-    multiply each of the features' value to the feature's weight,
-    and return the sum of all these values to get the q-value.
-    """
-    def getQValue(self, gameState, action):
-        #############
-        # Implement your code to calculate and return Q value
-        #############
-
-        q_value = 0
-        return q_value
-
-    """
-    Iterate through all q-values that we get from all
-    possible actions, and return the highest q-value
-    """
-    def getValue(self, gameState):
-        legalActions = gameState.getLegalActions(self.index)
-        if len(legalActions) == 0:
-                return 0.0
-        else:
-                #############
-                # Implement your return max Q value from all legalActions for a given state
-                #############
-                maxQvalue = 0
-                return maxQvalue
-
-    """
     Iterate through all q-values that we get from all
     possible actions, and return the action associated
     with the highest q-value.
     """
-    def getPolicy(self, gameState):
+    def getLowLevelPlan(self, gameState, highLevelAction):
         values = []
         legalActions = gameState.getLegalActions(self.index)
-        legalActions.remove(Directions.STOP)
-        if len(legalActions) == 0:
-                return None
+        rewardFunction = None
+        featureFunction = None
+        weights = None
+        learningRate = 0
+        if highLevelAction == "go_to_enemy_land" or highLevelAction == "eat_food":
+            rewardFunction = self.getOffensiveReward
+            featureFunction = self.getOffensiveFeatures
+            weights = self.getOffensiveWeights()
+            learningRate = self.alpha
+        elif highLevelAction == "go_home" or highLevelAction == "unpack_food":
+            rewardFunction = self.getEscapeReward
+            featureFunction = self.getEscapeFeatures
+            weights = self.getEscapeWeights()
+            learningRate = 0 # learning rate set to 0 as reward function not implemented for this action, do not do q update 
         else:
+            rewardFunction = self.getDefensiveReward
+            featureFunction = self.getDefensiveFeatures
+            weights = self.getDefensiveWeights()
+            learningRate = 0 # learning rate set to 0 as reward function not implemented for this action, do not do q update 
+
+        if len(legalActions) != 0:
+            prob = util.flipCoin(self.epsilon) # get change of perform random movement
+            if prob and self.trainning:
+                action = random.choice(legalActions)
+                return [action]
+            else:
                 for action in legalActions:
-                        self.updateWeights(gameState, action)
-                        values.append((self.getQValue(gameState, action), action))
-        return max(values)[1]
+                        if self.trainning:
+                            self.updateWeights(gameState, action, rewardFunction, featureFunction, weights,learningRate)
+                            print("Agent",self.index," weights:", weights)
+                        values.append((self.getQValue(featureFunction(gameState, action), weights), action))
+        print(legalActions,values)
+        return [max(values)[1]]
+
+
+    """
+    Iterate through all features (closest food, bias, ghost dist),
+    multiply each of the features' value to the feature's weight,
+    and return the sum of all these values to get the q-value.
+    """
+    def getQValue(self, features, weights):
+        return features * weights
     
     """
     Iterate through all features and for each feature, update
     its weight values using the following formula:
     w(i) = w(i) + alpha((reward + discount*value(nextState)) - Q(s,a)) * f(i)(s,a)
     """
-    def updateWeights(self, gameState, action):
-        features = self.getFeatures(gameState, action)
+    def updateWeights(self, gameState, action, rewardFunction, featureFunction, weights, learningRate):
+        features = featureFunction(gameState, action)
         nextState = self.getSuccessor(gameState, action)
 
-        # Calculate the reward. NEEDS WORK
-        reward = nextState.getScore() - gameState.getScore()
-
+        reward = rewardFunction(gameState, nextState)
         for feature in features:
-            ####################
-            # Impletement your codes to perform Approximate Q-learning update on each weight in self.weights.
-            ####################
-            pass 
-
-    #------------------------------- Low Level Action Functions -------------------------------
-
-    def getOffensiveAction(self, gameState: GameState):
-        actions = gameState.getLegalActions(self.index)
-
-        # You can profile your evaluation time by uncommenting these lines
-        # start = time.time()
-        values = [self.getOffensiveEvaluate(gameState, a) for a in actions]
-        # print 'eval time for agent %d: %.4f' % (self.index, time.time() - start)
-
-        maxValue = max(values)
-        bestActions = [a for a, v in zip(actions, values) if v == maxValue]
-
-        foodLeft = len(self.getFood(gameState).asList())
-        
-        if foodLeft <= 2:
-            bestDist = 9999
-            for action in actions:
-                successor = self.getSuccessor(gameState, action)
-                pos2 = successor.getAgentPosition(self.index)
-                dist = self.getMazeDistance(self.start,pos2)
-                if dist < bestDist:
-                    bestAction = action
-                    bestDist = dist
-            return bestAction
-
-        return random.choice(bestActions)
+            correction = (reward + self.discountRate*self.getValue(nextState, featureFunction, weights)) - self.getQValue(features, weights)
+            weights[feature] =weights[feature] + learningRate*correction * features[feature]
     
     """
-    Calculate probability of 0.1.
-    If probability is < 0.1, then choose a random action from
-    a list of legal actions.
-    Otherwise use the policy defined above to get an action.
+    Iterate through all q-values that we get from all
+    possible actions, and return the highest q-value
     """
-    def chooseOffensiveQLearningAction(self, gameState):
-        # This function is not using at this stage. you need to complete this function and replace the old chooseOffensiveAction function.
-        # Pick Action
-        legalActions = gameState.getLegalActions(self.index)
-        action = None
+    def getValue(self, nextState: GameState, featureFunction, weights):
+        qVals = []
+        legalActions = nextState.getLegalActions(self.index)
+        # if self.trainning:
+        #     legalActions.remove(Directions.STOP)
 
-        if len(legalActions) != 0:
-                ############
-                # At here, current code only returns actions through calculate Q value.
-                # Change the codes here to have a probability of self.epsilon to return random action.
-                ###########
-
-                action = self.getPolicy(gameState)
-        return action
+        if len(legalActions) == 0:
+            return 0.0
+        else:
+            for action in legalActions:
+                features = featureFunction(nextState, action)
+                qVals.append(self.getQValue(features,weights))
+            return max(qVals)
     
-    def getOffensiveEvaluate(self, gameState, action):
-        """
-        Computes a linear combination of features and feature weights
-        """
-        features = self.getOffensiveFeatures(gameState, action)
-        weights = self.getOffensiveWeights(gameState, action)
-        return features * weights
+    def getOffensiveReward(self, gameState, nextState):
+        # Calculate the reward. NEEDS WORK
+        currentAgentState:AgentState = gameState.getAgentState(self.index)
+        nextAgentState:AgentState = gameState.getAgentState(self.index)
+
+
+        new_food_carry = nextAgentState.numCarrying - currentAgentState.numCarrying
+        new_food_returned = nextAgentState.numReturned - currentAgentState.numReturned
+
+        if new_food_carry > 0:
+            #get new food, return positive scre
+            return new_food_carry*100
+        elif new_food_carry == 0:
+            #nothing happens
+            food_dist = self.stateClosestFood(gameState)
+            new_food_dist = self.stateClosestFood(nextState)
+            if new_food_dist is not None and food_dist is not None and new_food_dist<food_dist:
+                return 50
+            return -50
+        elif new_food_carry<0 and new_food_returned == 0:
+            # agent is eaten! by enemy! return large negative reward.
+            return new_food_carry*100
+        else:
+            return (nextState.getScore() - gameState.getScore()) * 100
+    
+    def getDefensiveReward(self,gameState, nextState):
+         return 0
+    
+    def getEscapeReward(self,gameState, nextState):
+         return 0
+
+
+
+    #------------------------------- Feature Related Action Functions -------------------------------
+
+
     
     def getOffensiveFeatures(self, gameState, action):
         food = self.getFood(gameState) 
@@ -526,29 +508,10 @@ class MixedAgent(CaptureAgent):
         features.divideAll(10.0)
         return features
 
-    def getOffensiveWeights(self, gameState, action):
-        return self.offensiveWeights
+    def getOffensiveWeights(self):
+        return MixedAgent.QLWeights["offensiveWeights"]
     
-    def getEscapeAction(self, gameState):
-        actions = gameState.getLegalActions(self.index)
 
-        # You can profile your evaluation time by uncommenting these lines
-        # start = time.time()
-        values = [self.getEscapeEvaluate(gameState, a) for a in actions]
-        # print 'eval time for agent %d: %.4f' % (self.index, time.time() - start)
-
-        maxValue = max(values)
-        bestActions = [a for a, v in zip(actions, values) if v == maxValue]
-
-        return random.choice(bestActions)
-
-    def getEscapeEvaluate(self, gameState, action):
-        """
-        Computes a linear combination of features and feature weights
-        """
-        features = self.getEscapeFeatures(gameState, action)
-        weights = self.getEscapeWeights(gameState, action)
-        return features * weights
 
     def getEscapeFeatures(self, gameState, action):
         features = util.Counter()
@@ -573,29 +536,10 @@ class MixedAgent(CaptureAgent):
 
         return features
 
-    def getEscapeWeights(self, gameState, action):
-        return self.escapeWeights
+    def getEscapeWeights(self):
+        return MixedAgent.QLWeights["escapeWeights"]
     
-    def getDefensiveAction(self, gameState):
-        actions = gameState.getLegalActions(self.index)
 
-        # You can profile your evaluation time by uncommenting these lines
-        # start = time.time()
-        values = [self.getDefensiveEvaluate(gameState, a) for a in actions]
-        # print 'eval time for agent %d: %.4f' % (self.index, time.time() - start)
-
-        maxValue = max(values)
-        bestActions = [a for a, v in zip(actions, values) if v == maxValue]
-
-        return random.choice(bestActions)
-
-    def getDefensiveEvaluate(self, gameState, action):
-        """
-        Computes a linear combination of features and feature weights
-        """
-        features = self.getDefensiveFeatures(gameState, action)
-        weights = self.getDefensiveWeights(gameState, action)
-        return features * weights
 
     def getDefensiveFeatures(self, gameState, action):
         features = util.Counter()
@@ -622,10 +566,31 @@ class MixedAgent(CaptureAgent):
 
         return features
 
-    def getDefensiveWeights(self, gameState, action):
-        return self.defensiveWeights
+    def getDefensiveWeights(self):
+        return MixedAgent.QLWeights["defensiveWeights"]
     
     def closestFood(self, pos, food, walls):
+        fringe = [(pos[0], pos[1], 0)]
+        expanded = set()
+        while fringe:
+            pos_x, pos_y, dist = fringe.pop(0)
+            if (pos_x, pos_y) in expanded:
+                continue
+            expanded.add((pos_x, pos_y))
+            # if we find a food at this location then exit
+            if food[pos_x][pos_y]:
+                return dist
+            # otherwise spread out from the location to its neighbours
+            nbrs = Actions.getLegalNeighbors((pos_x, pos_y), walls)
+            for nbr_x, nbr_y in nbrs:
+                fringe.append((nbr_x, nbr_y, dist+1))
+        # no food found
+        return None
+    
+    def stateClosestFood(self, gameState:GameState):
+        pos = gameState.getAgentPosition(self.index)
+        food = self.getFood(gameState)
+        walls = gameState.getWalls()
         fringe = [(pos[0], pos[1], 0)]
         expanded = set()
         while fringe:
