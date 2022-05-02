@@ -30,11 +30,17 @@ import random, time, util, sys, os
 from capture import GameState, noisyDistance
 from game import Directions, Actions, AgentState, Agent
 from util import nearestPoint
-import sys,os
+import sys,os, importlib.util
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-base_folder = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(base_folder+"/../") # make sure we can import pddl solver from piglet
+# the folder of current file.
+BASE_FOLDER = os.path.dirname(os.path.abspath(__file__))
+
+# Import piglet using path relative to base_folder.
+# This is important for your code to find right piglet on the contest server
+spec = importlib.util.spec_from_file_location("lib_piglet",BASE_FOLDER+"/../lib_piglet/__init__.py")
+lib_piglet = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = lib_piglet 
+spec.loader.exec_module(lib_piglet)
 from lib_piglet.utils.pddl_solver import pddl_solver
 from lib_piglet.domains.pddl import pddl_state
 from lib_piglet.utils.pddl_parser import Action
@@ -87,14 +93,14 @@ class MixedAgent(CaptureAgent):
             "defensiveWeights": {'numInvaders': -1000, 'onDefense': 100, 'invaderDistance': -10, 'stop': -100, 'reverse': -2},
             "escapeWeights": {'onDefense': 1000, 'enemyDistance': 30, 'stop': -100, 'distanceToHome': -20}
         }
-    QLWeightsFile = base_folder+'/QLWeightsMyTeam.txt'
+    QLWeightsFile = BASE_FOLDER+'/QLWeightsMyTeam.txt'
 
-    # Also can use class variable to exchange information between agents.
+    # Also can use class variable to exchange information among agents.
     CURRENT_ACTION = {}
 
 
     def registerInitialState(self, gameState: GameState):
-        self.pddl_solver = pddl_solver(base_folder+'/myTeam.pddl')
+        self.pddl_solver = pddl_solver(BASE_FOLDER+'/myTeam.pddl')
         self.highLevelPlan: List[Tuple[Action,pddl_state]] = None # Plan is a list Action and pddl_state
         self.currentNegativeGoalStates = []
         self.currentPositiveGoalStates = []
@@ -179,7 +185,7 @@ class MixedAgent(CaptureAgent):
             self.lowLevelActionIndex = 0
         lowLevelAction = self.lowLevelPlan[self.lowLevelActionIndex][0]
         self.lowLevelActionIndex+=1
-        print(lowLevelAction, self.lowLevelPlan)
+        print("\tAgent:", self.index,lowLevelAction)
         return lowLevelAction
 
     #------------------------------- PDDL and High-Level Action Functions ------------------------------- 

@@ -32,7 +32,7 @@ class pddl_solver:
             self.engine_.time_limit_ = time_limit
         else:
             self.engine_.time_limit_ = sys.maxsize
-
+            
         self.domain_.set_start_goal()
         solution = self.engine_.get_path(self.domain_.start_state_,self.domain_.goal_state_)
 
