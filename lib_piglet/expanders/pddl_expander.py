@@ -45,12 +45,13 @@ class pddl_greedy_relaxation_expander(base_expander):
     
     def expand(self, current:search_node):
         self.succ_.clear()
-        #####################
-        # Refer to the pddl_expander
-        # Implement your expander that generate only one non-repeat child state based on only one applicable relaxed actions.
-        #####################
-
-
+        current_state:pddl_state = current.state_
+        for act in self.domain_.ground_actions_:
+            if self.domain_.applicable(current_state.state_set_, act.positive_preconditions, self.empty_set_):
+                new_state = self.domain_.apply(current_state.state_set_, act.add_effects, self.empty_set_)
+                if new_state != current_state.state_set_:
+                    self.succ_.append((pddl_state(new_state, act), pddl_action(act,1)))
+                    break
         return self.succ_[:]
     
     def __str__(self):
