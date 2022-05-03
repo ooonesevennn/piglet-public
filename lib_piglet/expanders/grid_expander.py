@@ -164,17 +164,17 @@ class grid_joint_expander(base_expander):
 
         self.succ_.clear()
         current_state : grid_joint_state =  copy.deepcopy(current.state_)
-        for key, item in current.state_.agent_locations_.items():
-            if self.domain_.goal_.agent_locations_[key] == item:
-                current_state.agent_locations_.pop(key)
+        # for key, item in current.state_.agent_locations_.items():
+        #     if self.domain_.goal_.agent_locations_[key] == item:
+        #         current_state.agent_locations_.pop(key)
 
         agents_left = list(current_state.agent_locations_.keys())
-        loc_set = set()
-        self.generate_states(current_state, agents_left,len(current_state.agent_locations_), loc_set)
+        loc_set = {}
+        self.generate_states(current_state, agents_left,len(current_state.agent_locations_), loc_set, current_state)
 
         return self.succ_[:]
 
-    def generate_states(self, current_state: grid_joint_state, agents_left: list, cost: int, loc_set):
+    def generate_states(self, current_state: grid_joint_state, agents_left: list, cost: int, loc_set, parent_state):
         if len(agents_left) == 0:
             action = grid_action()
             action.move_ = None
@@ -192,11 +192,13 @@ class grid_joint_expander(base_expander):
             new_loc = self.__move(loc, a.move_)
             if new_loc in loc_set:
                 continue
+            if loc in loc_set and parent_state.agent_locations_[loc_set[loc]] == new_loc:
+                continue
             new_set = copy.deepcopy(loc_set)
-            new_set.add(new_loc)
+            new_set[new_loc]=agent
             new_state = copy.deepcopy(current_state)
             new_state.agent_locations_[agent] = new_loc
-            self.generate_states(new_state, agents_left[:],cost,new_set)
+            self.generate_states(new_state, agents_left[:],cost,new_set,parent_state)
 
 
     # return a list with all the applicable/valid actions
