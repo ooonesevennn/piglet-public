@@ -11,7 +11,7 @@ import math
 def pigelet_heuristic(domain,current_state, goal_state):
     return manhattan_heuristic(current_state, goal_state)
 
-def pigelet_multi_agent_heuristic(current_state, goal_state):
+def pigelet_multi_agent_heuristic(domain,current_state, goal_state):
     h = 0
     for agent, loc in current_state.agent_locations_.items():
         h += manhattan_heuristic(loc, goal_state.agent_locations_[agent])
