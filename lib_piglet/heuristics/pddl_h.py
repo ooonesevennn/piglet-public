@@ -32,8 +32,12 @@ def optimal_delete_relaxation_h(domain, current_state,goal_state):
     relaxed_search = graph_search(bin_heap(compare_node_g), relaxed_expander)
     relaxed_goal = pddl_goal(copy.deepcopy(goal_state.goal_pos_), frozenset())
     relaxed_solution = relaxed_search.get_path(copy.deepcopy(current_state), relaxed_goal)
-    domain.h_dict[current_state] = relaxed_solution.cost_
-    return relaxed_solution.cost_
+    if relaxed_solution is None:
+        domain.h_dict[current_state] = sys.maxsize
+        return sys.maxsize
+    else:
+        domain.h_dict[current_state] = relaxed_solution.cost_
+        return relaxed_solution.cost_
 
 
 

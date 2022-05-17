@@ -67,7 +67,8 @@ class pddl_optimal_relaxation_expander(base_expander):
         for act in self.domain_.ground_actions_:
             if self.domain_.applicable(current_state.state_set_, act.positive_preconditions, self.empty_set_):
                 new_state = self.domain_.apply(current_state.state_set_, act.add_effects, self.empty_set_)
-                self.succ_.append((pddl_state(new_state, act), pddl_action(act,1)))
+                if new_state != current_state.state_set_:
+                    self.succ_.append((pddl_state(new_state, act), pddl_action(act,1)))
         return self.succ_[:]
     
     def __str__(self):
