@@ -334,6 +334,8 @@ class PDDL_Parser:
         
     def add_pddl_object(self, object_name: str, object_type: str = "object"):
         found = False
+        object_name = str.lower(object_name)
+        object_type = str.lower(object_type)
         for key,item in self.types.items():
             if key == object_type or object_type in item:
                 found = True
@@ -344,6 +346,7 @@ class PDDL_Parser:
         self.objects[object_type].append(object_name)
 
     def add_to_state(self, to_add: tuple):
+        to_add = tuple([str.lower(x) for x in to_add])
         new_state = []
         for i in self.state:
             new_state.append(i)
@@ -351,6 +354,7 @@ class PDDL_Parser:
         self.state = frozenset(new_state)
         
     def remove_from_state(self, to_remove: tuple):
+        to_remove = tuple([str.lower(x) for x in to_remove])
         new_state = []
         for i in self.state:
             if i != tuple(to_remove):
@@ -372,12 +376,15 @@ class PDDL_Parser:
             self.add_pddl_object(item[0], item[1] if len(item) >= 2 else "object")
         
     def set_state(self, new_state: list):
+        new_state = [tuple([ str.lower(e) for e in s]) for s in new_state]
         self.state = frozenset(new_state)
         
     def set_positive_goals(self, positive_goals: list):
+        positive_goals = [tuple([ str.lower(e) for e in s]) for s in positive_goals]
         self.positive_goals = frozenset(positive_goals)
         
     def set_negative_goals(self, negative_goals: list):
+        negative_goals = [tuple([ str.lower(e) for e in s]) for s in negative_goals]
         self.negative_goals = frozenset(negative_goals)
     
     #-----------------------------------------------
