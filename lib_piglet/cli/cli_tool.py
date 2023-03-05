@@ -195,8 +195,8 @@ def parse_args():
     args , unknown = parser.parse_known_args()
     args:args_interface = args
     if args.framework == "iterative":
-        if args.strategy != "a-star" and args.strategy != "depth":
-            print("err; With iterative-deepening search, the strategy can only be depth or a-star ", file = sys.stderr)
+        if args.strategy != "a-star" and args.strategy != "depth" and args.strategy!="uniform":
+            print("err; With iterative-deepening search, the strategy can only be depth or a-star or uniform ", file = sys.stderr)
             exit(1)
     if args.anytime and args.strategy != "a-star":
         print("err; anytime search only works with graph framework and a-start stragety", file = sys.stderr)
