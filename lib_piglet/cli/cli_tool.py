@@ -23,6 +23,7 @@ class args_interface:
     multi_agent: bool
     problem_number: int
     anytime: bool
+    id_threshold_type:int
 
 
 
@@ -59,6 +60,7 @@ domain_types = ["grid4",
                 "graph",
                 "pddl"
                  ]
+id_choices=["depth","cost"]
 
 statistic_template = "{0:10}| {1:10}| {2:10}| {3:10}| {4:10}| {5:10}| {6:10}| {7:10}| {8:10}| {9:10}| {10:20}| {11:20}"
 csv_template = '"{0}","{1}","{2}","{3}","{4}","{5}","{6}","{7}","{8}","{9}","{10}","{11}"\n'
@@ -164,8 +166,13 @@ def parse_args():
                         choices=strategy_choice,
                         help='Specify the search strategy you want to use.\
                           Supported strategies are: [{}]. If using strategy "depth" and framework "iterative",\
-                           a maximum depth limit also need to be specified after "depth".'.format(", ".join(strategy_choice)), metavar="uniform")
-
+                           a maximum depth/cost limit also need to be specified after "depth".'.format(", ".join(strategy_choice)), metavar="uniform")
+    
+    parser.add_argument("-i", '--id-threshold-type', type=str, default=["depth"],
+                        choices=id_choices,
+                        help='Specify the ID Threshold Type you want to use, when strategy is "depth" and framework is "iterative".\
+                          Supported strategies are: [{}]. .'.format(", ".join(strategy_choice)), metavar="depth")
+    
     parser.add_argument("-t", '--time-limit', type=float, default=30,
                         help='Specify the time-limit for the search. (seconds) The default setting is 30 second.', metavar=30)
 
@@ -195,8 +202,8 @@ def parse_args():
     args , unknown = parser.parse_known_args()
     args:args_interface = args
     if args.framework == "iterative":
-        if args.strategy != "a-star" and args.strategy != "depth" and args.strategy!="uniform":
-            print("err; With iterative-deepening search, the strategy can only be depth or a-star or uniform ", file = sys.stderr)
+        if args.strategy != "depth":
+            print("err; With iterative-deepening search, the strategy can only be depth ", file = sys.stderr)
             exit(1)
     if args.anytime and args.strategy != "a-star":
         print("err; anytime search only works with graph framework and a-start stragety", file = sys.stderr)
