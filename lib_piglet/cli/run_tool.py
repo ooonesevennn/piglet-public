@@ -110,7 +110,7 @@ def run_task(t: task, args: args_interface):
     if args.framework == "iterative":
         if args.strategy == "depth":
             search_engine.get_path(start,goal,threshold_type=iterative_deepening.ID_threshold.depth)
-        elif args.strategy == "a-star":
+        elif args.strategy == "a-star" or args.strategy == "uniform":
             search_engine.get_path(start,goal,threshold_type=iterative_deepening.ID_threshold.cost)
     elif args.framework == "tree":
         search_engine.get_path(start,goal,depth_limit=args.depth_limit,cost_limit=args.cost_limit)
