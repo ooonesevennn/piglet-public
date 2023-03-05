@@ -108,9 +108,9 @@ def run_task(t: task, args: args_interface):
     search_engine.heuristic_weight_ = args.heuristic_weight
 
     if args.framework == "iterative":
-        if args.strategy == "depth":
+        if args.strategy == "depth" and args.id_threshold_type=="depth":
             search_engine.get_path(start,goal,threshold_type=iterative_deepening.ID_threshold.depth)
-        elif args.strategy == "a-star" or args.strategy == "uniform":
+        elif args.strategy == "depth" or args.id_threshold_type=="cost":
             search_engine.get_path(start,goal,threshold_type=iterative_deepening.ID_threshold.cost)
     elif args.framework == "tree":
         search_engine.get_path(start,goal,depth_limit=args.depth_limit,cost_limit=args.cost_limit)
@@ -191,9 +191,9 @@ def run_multi_tasks(domain_type,tasks: list, args: args_interface):
     search_engine.heuristic_weight_ = args.heuristic_weight
 
     if args.framework == "iterative":
-        if args.strategy == "depth":
+        if args.strategy == "depth" and args.id_threshold_type == "depth":
             search_engine.get_path(start,goal,threshold_type=iterative_deepening.ID_threshold.depth)
-        elif args.strategy == "a-star":
+        elif args.strategy == "depth" and args.id_threshold_type == "cost":
             search_engine.get_path(start,goal,threshold_type=iterative_deepening.ID_threshold.cost)
     elif args.framework == "tree":
         search_engine.get_path(start,goal,depth_limit=args.depth_limit,cost_limit=args.cost_limit)
