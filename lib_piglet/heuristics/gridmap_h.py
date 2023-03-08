@@ -8,7 +8,7 @@
 
 import math
 
-def pigelet_heuristic(domain,current_state, goal_state):
+def piglet_heuristic(domain,current_state, goal_state):
     return manhattan_heuristic(current_state, goal_state)
 
 def pigelet_multi_agent_heuristic(domain,current_state, goal_state):
