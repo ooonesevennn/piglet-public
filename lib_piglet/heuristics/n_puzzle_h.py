@@ -17,7 +17,7 @@ pattern_database = {}
 pattern_database_pattern_width = 0
 
 # piglet cli will use this function as heuristic.
-def pigelet_heuristic(domain,current_state, goal_state):
+def piglet_heuristic(domain,current_state, goal_state):
     return sum_manhattan_heuristic(current_state, goal_state)
 
 def num_wrong_heuristic(current_state: puzzle_state, goal_state: puzzle_state):
