@@ -43,7 +43,7 @@ def run_task(t: task, args: args_interface):
         elif t.domain_type == DOMAIN_TYPE.pddl:
             domain = pddl.pddl(t.domain, t.problem)
             expander = pddl_expander.pddl_expander(domain)
-            heuristic = pddl_h.pigelet_heuristic
+            heuristic = pddl_h.piglet_heuristic
             start = domain.start_state_
             goal = domain.goal_state_
 
@@ -54,7 +54,7 @@ def run_task(t: task, args: args_interface):
             start = t.start_state
             goal  = t.goal_state
             expander = grid_expander.grid_expander(domain)
-            heuristic = gridmap_h.pigelet_heuristic
+            heuristic = gridmap_h.piglet_heuristic
 
         elif t.domain_type == DOMAIN_TYPE.n_puzzle:
             domain = n_puzzle.n_puzzle(t.domain)
@@ -62,17 +62,17 @@ def run_task(t: task, args: args_interface):
             start = domain.start_state()
             goal = domain.goal_state()
             expander = n_puzzle_expander.n_puzzle_expander(domain)
-            heuristic = n_puzzle_h.pigelet_heuristic
+            heuristic = n_puzzle_h.piglet_heuristic
         elif t.domain_type == DOMAIN_TYPE.graph:
             domain = graph.graph(t.domain)
             expander = graph_expander.graph_expander(domain)
-            heuristic = graph_h.pigelet_heuristic
+            heuristic = graph_h.piglet_heuristic
             start = domain.get_vertex(t.start_state)
             goal = domain.get_vertex(t.goal_state)
         elif t.domain_type == DOMAIN_TYPE.pddl:
             domain = pddl.pddl(t.domain, t.problem)
             expander = pddl_expander.pddl_expander(domain)
-            heuristic = pddl_h.pigelet_heuristic
+            heuristic = pddl_h.piglet_heuristic
             start = domain.start_state_
             goal = domain.goal_state_
 
