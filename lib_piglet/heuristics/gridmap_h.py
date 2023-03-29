@@ -50,6 +50,11 @@ def differential_heuristic(domain, current_state,goal_state):
         all_h.append( abs(pivots[pivot][current_state] - pivots[pivot][goal_state]) )
     return max(all_h)
 
+def true_dis_heuristic(domain, current_state,goal_state):
+    if goal_state not in pivots:
+        pivots[goal_state] = calculate_distance(domain, goal_state)
+    return pivots[goal_state][current_state]
+
 
 def calculate_distance(domain,pivot):
     open = bin_heap(compare_node_g)
