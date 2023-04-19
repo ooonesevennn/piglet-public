@@ -40,7 +40,7 @@ class graph_search_anytime(base_search):
         while (len(self.open_list_) > 0):
             current: search_node = self.open_list_.pop()
             current.close()
-            current.open_handle_ = None
+            current.priority_queue_handle_ = None
             self.nodes_expanded_ +=1
 
             # if current.expanded:
@@ -84,7 +84,7 @@ class graph_search_anytime(base_search):
                 # succ_node not in any list, add it to open list
                 if succ_node not in self.all_nodes_list_:
                     # we need this open_handle_ to update the node in open list in the future
-                    succ_node.open_handle_ = self.open_list_.push(succ_node)
+                    succ_node.priority_queue_handle_ = self.open_list_.push(succ_node)
                     self.all_nodes_list_[succ_node] = succ_node
                     self.nodes_generated_+= 1
                 else:
@@ -113,13 +113,13 @@ class graph_search_anytime(base_search):
 
             if exist.is_closed():
                 # move the closed node into open list and mark open
-                exist.open_handle_ = self.open_list_.push(exist)
+                exist.priority_queue_handle_ = self.open_list_.push(exist)
                 exist.open()
                 self.re_expansions_ +=1
-            elif exist.open_handle_ is not None:
+            elif exist.priority_queue_handle_ is not None:
                 # If handle exist, we are using bin_heap. We need to tell bin_heap one element's value
                 # is decreased. Bin_heap will update the heap to maintain priority structure.
-                self.open_list_.decrease(exist.open_handle_)
+                self.open_list_.decrease(exist.priority_queue_handle_)
     
     # Get statistic information
     # @return list A list of Statistic information

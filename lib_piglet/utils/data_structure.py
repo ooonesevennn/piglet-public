@@ -86,7 +86,7 @@ class bin_heap:
     def pop(self):
         """
         Pop the top item of the heap and update the heap to maintain heap strucure.
-        :return:
+        :return item
         """
         retval: heap_item = self.heapList[1]
         self.handle.pop(retval.handle_id_)
@@ -96,6 +96,15 @@ class bin_heap:
         self.heapList.pop()
         self.__percDown(1)
         return retval.item_
+    
+    def top(self):
+        """
+        Return the top item of the heap. The item will not be deleted from the heap.
+        :return item
+        """
+        if self.size() ==0:
+            return None
+        return self.heapList[1].item_
 
     def build(self, alist:list):
         """

@@ -11,7 +11,7 @@ from lib_piglet.search.search_node import compare_node_g, compare_node_f, search
 from lib_piglet.utils.data_structure import bin_heap
 
 def piglet_heuristic(domain,current_state, goal_state):
-    return manhattan_heuristic(current_state, goal_state)
+    return straight_heuristic(current_state, goal_state)
 
 def pigelet_multi_agent_heuristic(domain,current_state, goal_state):
     h = 0
@@ -62,7 +62,7 @@ def calculate_distance(domain,pivot):
     start = search_node()
     start.state_ = pivot
     start.g_ = 0
-    start.open_handle_ = open.push(start)
+    start.priority_queue_handle_ = open.push(start)
     all_nodes[start] = start
     distance_table = {start.state_: 0}
     while len(open) >0:
@@ -81,7 +81,7 @@ def calculate_distance(domain,pivot):
             
             if succ_node not in all_nodes:
                 # we need this open_handle_ to update the node in open list in the future
-                succ_node.open_handle_ = open.push(succ_node)
+                succ_node.priority_queue_handle_ = open.push(succ_node)
                 all_nodes[succ_node] = succ_node
             else:
                 # succ_node only have the same hash and state comparing with the on in the all nodes list

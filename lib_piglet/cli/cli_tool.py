@@ -24,6 +24,7 @@ class args_interface:
     problem_number: int
     anytime: bool
     id_threshold_type:int
+    focal: bool
 
 
 
@@ -194,6 +195,9 @@ def parse_args():
 
     parser.add_argument("-a","--anytime", default=False, action="store_true",
                         help="Search in Anytime Weighted A* mode when having graph as framework and a-star as stragety")
+    
+    parser.add_argument("--focal", type=float, default=0,
+                        help="Search with focal search mode when having graph as framework and a-star as stragety")
 
     parser.add_argument('-n',"--problem-number", type=int, default=sys.maxsize,
                         help='Solve only top n problem from the scenario file', metavar=1000)
@@ -205,6 +209,15 @@ def parse_args():
         if args.strategy != "depth":
             print("err; With iterative-deepening search, the strategy can only be depth ", file = sys.stderr)
             exit(1)
+    if args.focal > 1:
+        if args.heuristic_weight > 1:
+            print("err; With focal search, the heuristic weight can only be 1 ", file = sys.stderr)
+            exit(1)
+        if args.strategy != "a-star":
+            print("err; With focal search, the strategy should be a-start ", file = sys.stderr)
+            exit(1)
+
+
     if args.anytime and args.strategy != "a-star":
         print("err; anytime search only works with graph framework and a-start stragety", file = sys.stderr)
         exit(1)
