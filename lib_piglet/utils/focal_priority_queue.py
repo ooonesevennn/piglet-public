@@ -94,18 +94,21 @@ class focal_priority_queue():
             self.handles[top.priority_queue_handle_].focal_handle = self.focal.push(top)
     
     def decrease(self, handle: int):
+        """
+        The f1 value of a node decreased, update the OPEN.
+        Check if Focal need to be updated according to f2.
+        """
         h = self.handles[handle]
         if h.focal_handle!= None:
-            self.focal.decrease(h.focal_handle)
+            self.focal.auto_update(h.focal_handle)
         if h.open_handle!= None:
-            self.open.decrease(h.open_handle)
-    
-    def increase(self, handle: int):
-        h = self.handles[handle]
-        if h.focal_handle!= None:
-            self.focal.increase(h.focal_handle)
-        if h.open_handle!= None:
-            self.open.increase(h.open_handle)
+            if h.focal_handle == None and self.open.get(h.open_handle).f_ <= self.w_f_min:
+                node = self.open.get(h.open_handle)
+                self.open.erase(h.open_handle)
+                h.focal_handle = self.focal.push(node)
+                h.open_handle = None
+            else:
+                self.open.decrease(h.open_handle)
 
     def clear(self):
         self.open.clear()
