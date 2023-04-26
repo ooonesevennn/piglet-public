@@ -51,6 +51,7 @@ class pddl:
         self.goal_state_: pddl_goal = None
         self.start_state_: pddl_state = None
         
+
         if problem_path is not None:
             self.parser_.parse_problem(problem_path)
             self.set_start_goal()

@@ -86,7 +86,7 @@ class bin_heap:
     def pop(self):
         """
         Pop the top item of the heap and update the heap to maintain heap strucure.
-        :return:
+        :return item
         """
         retval: heap_item = self.heapList[1]
         self.handle.pop(retval.handle_id_)
@@ -96,6 +96,15 @@ class bin_heap:
         self.heapList.pop()
         self.__percDown(1)
         return retval.item_
+    
+    def top(self):
+        """
+        Return the top item of the heap. The item will not be deleted from the heap.
+        :return item
+        """
+        if self.size() ==0:
+            return None
+        return self.heapList[1].item_
 
     def build(self, alist:list):
         """
@@ -163,12 +172,30 @@ class bin_heap:
             self.__percUp(self.handle[handle_id])
         else:
             raise ValueError("Given item not in the heap")
+    
+    def auto_update(self, handle_id:int):
+        if handle_id in self.handle:
+            i = self.handle[handle_id]
+            if i>1 and not self.compare_function(self.heapList[i].item_,self.heapList[i // 2].item_):
+                self.__percUp(i)
+            else:
+                self.__percDown(i)
+        else:
+            raise ValueError("Given item not in the heap")
+
 
     def update(self):
         i = self.currentSize // 2
         while (i > 0):
             self.__percDown(i)
             i = i - 1
+
+    def get(self, handle_id: int):
+        if not handle_id in self.handle:
+            raise KeyError("Handle id does not exist")
+        index = self.handle[handle_id]
+        retval: heap_item = self.heapList[index]
+        return retval.item_
 
     def size(self):
         """

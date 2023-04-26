@@ -10,6 +10,7 @@ from lib_piglet.domains import gridmap,n_puzzle,graph, pddl
 from lib_piglet.expanders import grid_expander, n_puzzle_expander, base_expander, graph_expander, pddl_expander
 from lib_piglet.search import tree_search, graph_search,base_search,search_node, iterative_deepening,graph_search_anytime
 from lib_piglet.utils.data_structure import queue,stack,bin_heap
+from lib_piglet.utils.focal_priority_queue import focal_priority_queue
 from lib_piglet.heuristics import gridmap_h,n_puzzle_h,graph_h, pddl_h
 
 import sys
@@ -54,7 +55,7 @@ def run_task(t: task, args: args_interface):
             start = t.start_state
             goal  = t.goal_state
             expander = grid_expander.grid_expander(domain)
-            heuristic = gridmap_h.pigelet_heuristic
+            heuristic = gridmap_h.piglet_heuristic
 
         elif t.domain_type == DOMAIN_TYPE.n_puzzle:
             domain = n_puzzle.n_puzzle(t.domain)
@@ -62,17 +63,17 @@ def run_task(t: task, args: args_interface):
             start = domain.start_state()
             goal = domain.goal_state()
             expander = n_puzzle_expander.n_puzzle_expander(domain)
-            heuristic = n_puzzle_h.pigelet_heuristic
+            heuristic = n_puzzle_h.piglet_heuristic
         elif t.domain_type == DOMAIN_TYPE.graph:
             domain = graph.graph(t.domain)
             expander = graph_expander.graph_expander(domain)
-            heuristic = graph_h.pigelet_heuristic
+            heuristic = graph_h.piglet_heuristic
             start = domain.get_vertex(t.start_state)
             goal = domain.get_vertex(t.goal_state)
         elif t.domain_type == DOMAIN_TYPE.pddl:
             domain = pddl.pddl(t.domain, t.problem)
             expander = pddl_expander.pddl_expander(domain)
-            heuristic = pddl_h.pigelet_heuristic
+            heuristic = pddl_h.piglet_heuristic
             start = domain.start_state_
             goal = domain.goal_state_
 
@@ -86,7 +87,10 @@ def run_task(t: task, args: args_interface):
         elif strategy == "uniform":
             open_list = bin_heap(search_node.compare_node_g)
         elif strategy =="a-star":
-            open_list =  bin_heap(search_node.compare_node_f)
+            if args.focal > 1:
+                open_list = focal_priority_queue(compare_function_1=search_node.compare_node_f, weight = args.focal)
+            else:
+                open_list =  bin_heap(search_node.compare_node_f)
             heuristic_function = heuristic
         elif strategy == "greedy-best":
             open_list =  bin_heap(search_node.compare_node_h)
@@ -108,9 +112,9 @@ def run_task(t: task, args: args_interface):
     search_engine.heuristic_weight_ = args.heuristic_weight
 
     if args.framework == "iterative":
-        if args.strategy == "depth":
+        if args.strategy == "depth" and args.id_threshold_type=="depth":
             search_engine.get_path(start,goal,threshold_type=iterative_deepening.ID_threshold.depth)
-        elif args.strategy == "a-star":
+        elif args.strategy == "depth" or args.id_threshold_type=="cost":
             search_engine.get_path(start,goal,threshold_type=iterative_deepening.ID_threshold.cost)
     elif args.framework == "tree":
         search_engine.get_path(start,goal,depth_limit=args.depth_limit,cost_limit=args.cost_limit)
@@ -191,9 +195,9 @@ def run_multi_tasks(domain_type,tasks: list, args: args_interface):
     search_engine.heuristic_weight_ = args.heuristic_weight
 
     if args.framework == "iterative":
-        if args.strategy == "depth":
+        if args.strategy == "depth" and args.id_threshold_type == "depth":
             search_engine.get_path(start,goal,threshold_type=iterative_deepening.ID_threshold.depth)
-        elif args.strategy == "a-star":
+        elif args.strategy == "depth" and args.id_threshold_type == "cost":
             search_engine.get_path(start,goal,threshold_type=iterative_deepening.ID_threshold.cost)
     elif args.framework == "tree":
         search_engine.get_path(start,goal,depth_limit=args.depth_limit,cost_limit=args.cost_limit)

@@ -8,7 +8,7 @@
 
 import math
 
-def pigelet_heuristic(current_state, goal_state):
+def piglet_heuristic(domain, current_state, goal_state):
     return straight_heuristic(current_state, goal_state)
 
 # In graph map this heuristic may not admissible if the distance derived by give coordinate is lager than given edge weight.

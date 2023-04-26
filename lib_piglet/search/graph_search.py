@@ -63,7 +63,7 @@ class graph_search(base_search):
                 # succ_node not in any list, add it to open list
                 if succ_node not in self.all_nodes_list_:
                     # we need this open_handle_ to update the node in open list in the future
-                    succ_node.open_handle_ = self.open_list_.push(succ_node)
+                    succ_node.priority_queue_handle_ = self.open_list_.push(succ_node)
                     self.all_nodes_list_[succ_node] = succ_node
                     self.nodes_generated_+= 1
 
@@ -89,7 +89,7 @@ class graph_search(base_search):
             exist.timestep_ = new.timestep_
             exist.h_ = new.h_
             exist.parent_ = new.parent_
-            if exist.open_handle_ is not None:
+            if exist.priority_queue_handle_ is not None:
                 # If handle exist, we are using bin_heap. We need to tell bin_heap one element's value
                 # is decreased. Bin_heap will update the heap to maintain priority structure.
-                self.open_list_.decrease(exist.open_handle_)
+                self.open_list_.decrease(exist.priority_queue_handle_)
