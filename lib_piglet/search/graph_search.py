@@ -89,6 +89,7 @@ class graph_search(base_search):
             exist.timestep_ = new.timestep_
             exist.h_ = new.h_
             exist.parent_ = new.parent_
+            exist.state_ = new.state_
             if exist.priority_queue_handle_ is not None:
                 # If handle exist, we are using bin_heap. We need to tell bin_heap one element's value
                 # is decreased. Bin_heap will update the heap to maintain priority structure.
